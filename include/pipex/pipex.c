@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/pipex/pipex.h"
+#include "pipex.h"
 
 void	first_child(int fd_in, int *pipe_fd, char **argv, char **envp)
 {

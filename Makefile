@@ -1,50 +1,40 @@
-# Name of the final executable
+
 NAME = minishell
 
-# Source files
-SOURCES =	src/minishell.c \
-			src/utils.c \
-			src/pipex/pipex.c \
-			src/pipex/utils.c \
+SOURCES =	src/minishell.c src/utils.c \
 
-# Object files
 OBJECTS = $(SOURCES:.c=.o)
 
-# Compiler and flags
-CC = cc
+GCC = gcc
+
 CFLAGS = -Wall -Werror -Wextra -Iincludes
 
-# Paths
-LIBFT_DIR = libft
-LIBFT = $(LIBFT_DIR)/libft.a
+PIPEX = cd include && cd pipex && make
 
-# Target for all
-all: $(LIBFT) $(NAME)
+LIB = include/libft/libft.a
 
-# Target for the final executable
-$(NAME): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJECTS) $(LIBFT)
+# ------------------------------ Rules ------------------------------
+all: $(NAME)
 
-# Rule to build object files
+$(NAME): comp_begin minishell
+
+comp_begin:
+	@$(PIPEX)
+
+minishell: $(OBJECTS)
+	$(GCC) $(CFLAGS) $(OBJECTS) $(LIB) -o $(NAME)
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Rule to build the libft library
-$(LIBFT):
-	$(MAKE) -C $(LIBFT_DIR)
-
-# Clean object files
 clean:
-	@rm -f $(OBJECTS)
-	@$(MAKE) -C $(LIBFT_DIR) clean
-	
-# Full clean, including the executable and libft
-fclean: clean
-	@rm -f $(NAME)
-	@$(MAKE) -C $(LIBFT_DIR) fclean
+	@rm -rf $(OBJECTS)
+	@cd include && cd pipex && make clean
 
-# Rebuild everything
+fclean: clean
+	@rm -rf $(NAME)
+	@cd include && cd pipex && make fclean
+
 re: fclean all
 
-# Phony targets
 .PHONY: all clean fclean re

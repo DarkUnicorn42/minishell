@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/pipex/pipex.h"
+#include "pipex.h"
 
 void	error_exit(const char *msg)
 {
