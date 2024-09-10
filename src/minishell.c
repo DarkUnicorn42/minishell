@@ -9,12 +9,12 @@ int main(void)
     while (1)
     {
         // Display prompt and read input
-        input = readline("my_shell> ");
+        input = readline("my_(s)hell> ");
         
         // If readline returns NULL (Ctrl-D), exit the loop
         if (input == NULL)
         {
-            printf("Exiting shell...\n");
+            printf("Exiting (s)hell...\n");
             break;
         }
         
