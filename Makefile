@@ -13,6 +13,8 @@ PIPEX = cd include && cd pipex && make
 
 LIB = include/libft/libft.a
 
+READLINE = -L/usr/include -lreadline
+
 # ------------------------------ Rules ------------------------------
 all: $(NAME)
 
@@ -22,7 +24,7 @@ comp_begin:
 	@$(PIPEX)
 
 minishell: $(OBJECTS)
-	$(GCC) $(CFLAGS) $(OBJECTS) $(LIB) -o $(NAME)
+	$(GCC) $(CFLAGS) $(OBJECTS) $(LIB) $(READLINE) -o $(NAME)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
