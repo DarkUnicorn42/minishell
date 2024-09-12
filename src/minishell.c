@@ -5,31 +5,21 @@ int main(void)
 {
     char *input;
     
-    // Shell loop
     while (1)
     {
-        // Display prompt and read input
-        input = readline("my_(s)hell> ");
-        
-        // If readline returns NULL (Ctrl-D), exit the loop
+        input = readline("📟 \e[0;32mwrite_commend_here >> \e[0m");
+
         if (input == NULL)
         {
-            printf("Exiting (s)hell...\n");
+            printf("\n\n\e[0;32mExiting shell...\e[0m\n");
+            printf("\n\e[1;32m✖️ Shell closed.\e[0m\n\n");
             break;
         }
-        
-        // Add the input to history
         if (input && *input)
-        {
             add_history(input);
-        }
-        
-        // Print the user's input for demonstration purposes (you can replace this with actual command handling)
+
         printf("You entered: %s\n", input);
-        
-        // Free the allocated memory for the input
         free(input);
     }
-    
     return 0;
 }
