@@ -20,7 +20,6 @@ t_token *lexer(const char *input) {
             }
             add_token(&tokens, create_token(TOKEN_WORD, word));
         }
-        i++;
     }
     add_token(&tokens, create_token(TOKEN_EOF, NULL));
     return tokens;
@@ -60,10 +59,8 @@ char *collect_word(const char *input, size_t *i) {
     size_t start = *i;
     size_t len = 0;
     char *word = ft_strdup("");
-    if (!word) {
-        // Handle memory allocation failure
-        return NULL;
-    }
+    if (!word)
+        return (NULL);
 
     while (input[*i] != '\0' && !isspace((unsigned char)input[*i]) && !is_operator_char(input[*i])) {
         if (input[*i] == '\'' || input[*i] == '"') {
@@ -73,15 +70,12 @@ char *collect_word(const char *input, size_t *i) {
                 return NULL;
             }
             // Append quoted string to word
-            printf("etst\n");
             char *new_word = ft_strjoin(word, quoted);
             free(word);
             free(quoted);
             word = new_word;
-            if (!word) {
-                // Handle memory allocation failure
-                return NULL;
-            }
+            if (!word)
+                return (NULL);
         } else {
             len++;
             (*i)++;
@@ -95,7 +89,6 @@ char *collect_word(const char *input, size_t *i) {
             free(word);
             return NULL; // Handle memory allocation failure
         }
-        printf("substr: %s\n", substr);
         char *new_word = ft_strjoin(word, substr);
         free(word);
         free(substr);
@@ -105,7 +98,6 @@ char *collect_word(const char *input, size_t *i) {
             return NULL;
         }
     }
-printf("word: %s\n", word);
     return word;
 }
 
