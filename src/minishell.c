@@ -1,16 +1,13 @@
 
 #include "../include/minishell.h"
 
-int main(void)
-{
+int main(void) {
     char *input;
-    
-    while (1)
-    {
-        input = readline("📟 \e[0;32mwrite_commend_here >> \e[0m");
+    t_token *tokens;
 
-        if (input == NULL)
-        {
+    while (1) {
+        input = readline("📟 \e[0;32m(s)hell >> \e[0m");
+        if (input == NULL) {
             printf("\n\n\e[0;32mExiting shell...\e[0m\n");
             printf("\n\e[1;32m✖️ Shell closed.\e[0m\n\n");
             break;
@@ -18,8 +15,20 @@ int main(void)
         if (input && *input)
             add_history(input);
 
-        printf("You entered: %s\n", input);
+        // Call lexer to tokenize the input
+        tokens = lexer(input);
+        if (!tokens) {
+            fprintf(stderr, "Lexer error: Failed to tokenize input\n");
+            free(input);
+            continue;
+        }
+
+        // Print tokens
+        print_tokens(tokens);
+
+        free_tokens(tokens);
         free(input);
     }
     return 0;
 }
+

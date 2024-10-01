@@ -1,7 +1,7 @@
 
 NAME = minishell
 
-SOURCES =	src/minishell.c src/utils.c \
+SOURCES =	src/minishell.c src/utils.c src/lexer.c \
 
 OBJECTS = $(SOURCES:.c=.o)
 
