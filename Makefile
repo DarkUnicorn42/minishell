@@ -7,7 +7,7 @@ OBJECTS = $(SOURCES:.c=.o)
 
 GCC = gcc
 
-CFLAGS = -Wall -Werror -Wextra -Iincludes
+CFLAGS = -Wall -Werror -Wextra -Iincludes -fPIE
 
 PIPEX = cd include && cd pipex && make
 

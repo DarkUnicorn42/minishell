@@ -13,52 +13,24 @@
 #include "libft.h"
 #include <stdlib.h>
 
-char *ft_substr(char const *s, unsigned int start, size_t len) {
-    char *substr;
-    size_t i;
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	char	*substr;
+	size_t	i;
 
-    if (!s) {
-        fprintf(stderr, "ft_substr: input string is null\n");
-        return (NULL);
-    }
-    if (start >= ft_strlen(s))
-        return (ft_strdup(""));
-    substr = (char *)malloc(sizeof(char) * (len + 1));
-    if (!substr) {
-        fprintf(stderr, "ft_substr: memory allocation failed\n");
-        return (NULL);
-    }
-    i = 0;
-    while (i < len && s[start + i]) {
-        substr[i] = s[start + i];
-        i++;
-    }
-    substr[i] = '\0';
-    return (substr);
+	if (!s)
+		return (NULL);
+	if (start >= ft_strlen(s))
+		return (ft_strdup(""));
+	substr = (char *)malloc(sizeof(char) * (len + 1));
+	if (!substr)
+		return (NULL);
+	i = 0;
+	while (i < len && s[start + i])
+	{
+		substr[i] = s[start + i];
+		i++;
+	}
+	substr[i] = '\0';
+	return (substr);
 }
-/*
-#include <stdio.h>
-#include <stdlib.h>
-
-// Prototype of the ft_substr function
-char *ft_substr(char const *s, unsigned int start, size_t len);
-
-int main() {
-    char input[] = "Hello, World!";
-    unsigned int start_index = 7; // Start extracting from index 7
-    size_t length = 5; // Extract 5 characters
-
-    // Call ft_substr function
-    char *substring = ft_substr(input, start_index, length);
-
-    if (substring) {
-        printf("Substring: %s\n", substring);
-        // Don't forget to free the allocated memory
-        free(substring);
-    } else {
-        printf("Substring is NULL\n");
-    }
-
-    return 0;
-}
-*/
