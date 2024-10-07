@@ -27,13 +27,13 @@ t_command *parse_tokens(t_token *tokens) {
             current_command = NULL; // Start a new command after a pipe
         } else if (is_redirection(tokens->type)) {
             if (!current_command) {
-                fprintf(stderr, "Error: Redirection without command\n");
+                printf("Error: Redirection without command\n");
                 free_commands(commands);
                 return NULL;
             }
             tokens = tokens->next;
             if (!tokens || tokens->type != TOKEN_WORD) {
-                fprintf(stderr, "Error: Expected filename after redirection\n");
+                printf("Error: Expected filename after redirection\n");
                 free_commands(commands);
                 return NULL;
             }

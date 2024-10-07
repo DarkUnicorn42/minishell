@@ -18,94 +18,109 @@ int execute_commands(t_command *commands) {
     int input_fd = STDIN_FILENO;
     pid_t pid;
 
-    while (current_command) {
+    while (current_command)
+    {
         // If there's a next command, create a pipe
-        if (current_command->next) {
-            if (pipe(pipe_fd) == -1) {
+        if (current_command->next)
+        {
+            if (pipe(pipe_fd) == -1)
+            {
                 perror("pipe");
                 return (1);
             }
         }
-
         // Fork to execute the command
         pid = fork();
-        if (pid == -1) {
+        if (pid == -1)
+        {
             perror("fork");
             return (1);
         }
-
-        if (pid == 0) {
+        if (pid == 0)
+        {
             // Child process
-            if (input_fd != STDIN_FILENO) {
+            if (input_fd != STDIN_FILENO)
+            {
                 dup2(input_fd, STDIN_FILENO);
                 close(input_fd);
             }
-
-            if (current_command->next) {
+            if (current_command->next)
+            {
                 close(pipe_fd[0]);
                 dup2(pipe_fd[1], STDOUT_FILENO);
                 close(pipe_fd[1]);
             }
-
             if (handle_redirections(current_command) == -1)
                 exit(1);
-
-            if (is_builtin(current_command->args[0])) {
+            if (is_builtin(current_command->args[0]))
                 exit(execute_builtin(current_command));
-            } else {
+            else
+            {
                 execvp(current_command->args[0], current_command->args);
                 perror("execvp");
                 exit(1);
             }
-        } else {
+        }
+        else
+        {
             // Parent process
             if (input_fd != STDIN_FILENO)
                 close(input_fd);
 
-            if (current_command->next) {
+            if (current_command->next)
+            {
                 close(pipe_fd[1]);
                 input_fd = pipe_fd[0];
             }
-
             waitpid(pid, NULL, 0);
         }
-
         current_command = current_command->next;
     }
-
     return (0);
 }
 
-int handle_redirections(t_command *command) {
+int handle_redirections(t_command *command)
+{
     t_redirection *redir = command->redirections;
     int fd;
 
-    while (redir) {
-        if (redir->type == TOKEN_REDIRECT_IN) {
+    while (redir)
+    {
+        if (redir->type == TOKEN_REDIRECT_IN)
+        {
             fd = open(redir->file, O_RDONLY);
-            if (fd == -1) {
+            if (fd == -1)
+            {
                 perror("open");
                 return (-1);
             }
             dup2(fd, STDIN_FILENO);
-        } else if (redir->type == TOKEN_REDIRECT_OUT) {
+        }
+        else if (redir->type == TOKEN_REDIRECT_OUT)
+        {
             fd = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-            if (fd == -1) {
+            if (fd == -1)
+            {
                 perror("open");
                 return (-1);
             }
             dup2(fd, STDOUT_FILENO);
-        } else if (redir->type == TOKEN_APPEND) {
+        }
+        else if (redir->type == TOKEN_APPEND)
+        {
             fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
-            if (fd == -1) {
+            if (fd == -1)
+            {
                 perror("open");
                 return (-1);
             }
             dup2(fd, STDOUT_FILENO);
-        } else if (redir->type == TOKEN_HEREDOC) {
+        }
+        else if (redir->type == TOKEN_HEREDOC)
+        {
             // Handle heredoc (<<)
-            // For simplicity, you might want to simulate heredoc in your implementation
-            // as handling it exactly like Bash can be challenging.
+            // << should be given a delimiter, then read the input until a line containing the delimiter is seen. 
+            // However, it doesn’t have to update the history!
         }
 
         close(fd);
@@ -114,14 +129,16 @@ int handle_redirections(t_command *command) {
     return (0);
 }
 
-int is_builtin(char *cmd) {
+int is_builtin(char *cmd)
+{
     return (!ft_strcmp(cmd, "echo") || !ft_strcmp(cmd, "cd") ||
             !ft_strcmp(cmd, "pwd") || !ft_strcmp(cmd, "export") ||
             !ft_strcmp(cmd, "unset") || !ft_strcmp(cmd, "env") ||
             !ft_strcmp(cmd, "exit"));
 }
 
-int execute_builtin(t_command *command) {
+int execute_builtin(t_command *command)
+{
     if (!ft_strcmp(command->args[0], "echo"))
         return builtin_echo(command->args);
     else if (!ft_strcmp(command->args[0], "cd"))

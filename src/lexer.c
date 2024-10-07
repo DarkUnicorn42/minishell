@@ -85,68 +85,85 @@ int	is_operator_char(char c)
 	return (c == '|' || c == '<' || c == '>' || c == ';');
 }
 
-char	*collect_word(const char *input, size_t *i)
+char *collect_word(const char *input, size_t *i)
 {
-	size_t	start;
-	size_t	len;
-	char		*quoted;
-	char		*word;
-	char		*new_word;
+    size_t start;
+    size_t len;
+    char *word;
 
-	start = *i;
-	len = 0;
-	word = ft_strdup("");
-	if (!word)
-		return (NULL);
-	while (input[*i] != '\0' && !isspace((unsigned char)input[*i]) && !is_operator_char(input[*i]))
-	{
-		if (input[*i] == '\'' || input[*i] == '"')
-		{
-			quoted = collect_quoted(input, i, input[*i]);
-			if (!quoted)
-			{
-				free(word);
-				return NULL;
-			}
-			new_word = ft_strjoin(word, quoted);
-			free(word);
-			free(quoted);
-			word = new_word;
-			if (!word)
-				return (NULL);
-		}
-		else
-		{
-			len++;
-			(*i)++;
-		}
-	}
-	// Copy the word from input
-	if (len > 0) {
-		char *substr = ft_substr(input, start, len);
-		if (!substr) {
-		    free(word);
-		    return (NULL);
-		}
-		new_word = ft_strjoin(word, substr);
-		free(word);
-		free(substr);
-		word = new_word;
-		if (!word)
-			return (NULL);
-	}
-	return word;
+    start = *i;
+    len = 0;
+    word = ft_strdup("");
+    if (!word)
+        return (NULL);
+    while (input[*i] != '\0' && !isspace((unsigned char)input[*i]) && !is_operator_char(input[*i]))
+    {
+        if (input[*i] == '\'' || input[*i] == '"')
+        {
+            word = handle_quotes(input, i, word);
+            if (!word)
+                return (NULL);
+        }
+        else
+        {
+            len++;
+            (*i)++;
+        }
+    }
+    if (len > 0)
+        word = append_substring(input, start, len, word);
+    return word;
+}
+
+char *handle_quotes(const char *input, size_t *i, char *word)
+{
+    char *quoted;
+    char *new_word;
+
+    quoted = collect_quoted(input, i, input[*i]);
+    if (!quoted)
+    {
+        free(word);
+        return (NULL);
+    }
+    new_word = ft_strjoin(word, quoted);
+    free(word);
+    free(quoted);
+    if (!new_word)
+        return (NULL);
+    return new_word;
+}
+
+char *append_substring(const char *input, size_t start, size_t len, char *word)
+{
+    char *substr;
+    char *new_word;
+
+    substr = ft_substr(input, start, len);
+    if (!substr)
+    {
+        free(word);
+        return (NULL);
+    }
+    new_word = ft_strjoin(word, substr);
+    free(word);
+    free(substr);
+    if (!new_word)
+        return (NULL);
+    return new_word;
 }
 
 char *collect_quoted(const char *input, size_t *i, char quote_char) {
     (*i)++; // Skip the opening quote
     size_t start = *i;
     size_t len = 0;
-    while (input[*i] != '\0' && input[*i] != quote_char) {
+    while (input[*i] != '\0' && input[*i] != quote_char)
+	{
         len++;
         (*i)++;
     }
-    if (input[*i] != quote_char) {
+    if (input[*i] != quote_char)
+	{
         fprintf(stderr, "Error: Unclosed quote\n");
         return NULL;
     }
@@ -155,20 +172,28 @@ char *collect_quoted(const char *input, size_t *i, char quote_char) {
     return quoted;
 }
 
-t_token_type identify_operator(const char *input, size_t *i) {
-    if (input[*i] == '|') {
+t_token_type identify_operator(const char *input, size_t *i)
+{
+    if (input[*i] == '|')
+	{
         (*i)++;
         return TOKEN_PIPE;
-    } else if (input[*i] == '<') {
+    }
+	else if (input[*i] == '<')
+	{
         (*i)++;
-        if (input[*i] == '<') {
+        if (input[*i] == '<')
+		{
             (*i)++;
             return TOKEN_HEREDOC;
         }
         return TOKEN_REDIRECT_IN;
-    } else if (input[*i] == '>') {
+    }
+	else if (input[*i] == '>')
+	{
         (*i)++;
-        if (input[*i] == '>') {
+        if (input[*i] == '>')
+		{
             (*i)++;
             return TOKEN_APPEND;
         }

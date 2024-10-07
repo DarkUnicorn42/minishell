@@ -53,6 +53,8 @@ void add_token(t_token **tokens, t_token *new_token);
 void skip_whitespace(const char *input, size_t *i);
 int is_operator_char(char c);
 char *collect_word(const char *input, size_t *i);
+char *handle_quotes(const char *input, size_t *i, char *word);
+char *append_substring(const char *input, size_t start, size_t len, char *word);
 char *collect_quoted(const char *input, size_t *i, char quote_char);
 t_token_type identify_operator(const char *input, size_t *i);
 void free_tokens(t_token *tokens);
