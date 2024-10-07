@@ -11,3 +11,92 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+int builtin_echo(char **args) {
+    int i = 1;
+    int newline = 1;
+
+    // Check if -n flag is present
+    if (args[i] && ft_strcmp(args[i], "-n") == 0) {
+        newline = 0;
+        i++;
+    }
+
+    // Print arguments
+    while (args[i]) {
+        printf("%s", args[i]);
+        if (args[i + 1])
+            printf(" ");
+        i++;
+    }
+
+    if (newline)
+        printf("\n");
+
+    return 0;
+}
+
+int builtin_cd(char **args) {
+    if (!args[1]) {
+        fprintf(stderr, "cd: missing argument\n");
+        return 1;
+    }
+    if (chdir(args[1]) == -1) {
+        perror("cd");
+        return 1;
+    }
+    return 0;
+}
+
+int builtin_pwd(void) {
+    char cwd[PATH_MAX];
+
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        printf("%s\n", cwd);
+        return 0;
+    } else {
+        perror("pwd");
+        return 1;
+    }
+}
+
+int builtin_export(char **args) {
+    // Simple implementation for demonstration purposes
+    if (!args[1]) {
+        fprintf(stderr, "export: missing argument\n");
+        return 1;
+    }
+    if (putenv(args[1]) != 0) {
+        perror("export");
+        return 1;
+    }
+    return 0;
+}
+
+int builtin_unset(char **args) {
+    if (!args[1]) {
+        fprintf(stderr, "unset: missing argument\n");
+        return 1;
+    }
+    if (unsetenv(args[1]) != 0) {
+        perror("unset");
+        return 1;
+    }
+    return 0;
+}
+
+int builtin_env(void) {
+    extern char **environ;
+    for (int i = 0; environ[i]; i++) {
+        printf("%s\n", environ[i]);
+    }
+    return 0;
+}
+
+int builtin_exit(char **args) {
+    int status = 0;
+    if (args[1]) {
+        status = ft_atoi(args[1]);
+    }
+    exit(status);
+}

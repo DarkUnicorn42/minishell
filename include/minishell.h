@@ -66,6 +66,21 @@ void add_redirection(t_command *command, t_token_type type, char *file);
 int is_redirection(t_token_type type);
 void free_commands(t_command *commands);
 
+// executor.c
+int execute_commands(t_command *commands);
+int handle_redirections(t_command *command);
+int is_builtin(char *command);
+int execute_builtin(t_command *command);
+
+// builtins.c
+int builtin_echo(char **args);
+int builtin_cd(char **args);
+int builtin_pwd(void);
+int builtin_export(char **args);
+int builtin_unset(char **args);
+int builtin_env(void);
+int builtin_exit(char **args);
+
 //utils.c
 void print_tokens(t_token *tokens);
 void free_tokens(t_token *tokens);
