@@ -33,7 +33,7 @@ int main(void) {
         // Call lexer to tokenize the input
         tokens = lexer(input);
         if (!tokens) {
-            printf(stderr, "Lexer error: Failed to tokenize input\n");
+            printf("Lexer error: Failed to tokenize input\n");
             free(input);
             continue;
         }
@@ -41,7 +41,7 @@ int main(void) {
         // Call parser to parse tokens into commands
         commands = parse_tokens(tokens);
         if (!commands) {
-            printf(stderr, "Parser error: Failed to parse tokens\n");
+            printf("Parser error: Failed to parse tokens\n");
             free_tokens(tokens);
             free(input);
             continue;
