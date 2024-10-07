@@ -16,7 +16,7 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 
-#endif
+
 
 typedef enum e_token_type {
     TOKEN_WORD,
@@ -34,6 +34,18 @@ typedef struct s_token {
     struct s_token  *next;
 } t_token;
 
+typedef struct s_redirection {
+    t_token_type    type;     // <, >, <<, >>
+    char            *file;    // File name for the redirection
+    struct s_redirection *next;
+} t_redirection;
+
+typedef struct s_command {
+    char            **args;        // Command and arguments (e.g., {"ls", "-la", NULL})
+    t_redirection   *redirections; // Linked list of redirections
+    struct s_command *next;        // For a chain of commands connected by pipes
+} t_command;
+
 //lexer.c
 t_token *lexer(const char *input);
 t_token *create_token(t_token_type type, char *value);
@@ -45,12 +57,20 @@ char *collect_quoted(const char *input, size_t *i, char quote_char);
 t_token_type identify_operator(const char *input, size_t *i);
 void free_tokens(t_token *tokens);
 
+// parser.c
+t_command *parse_tokens(t_token *tokens);
+t_command *create_command();
+void add_command(t_command **commands, t_command *new_command);
+void add_argument(t_command *command, char *arg);
+void add_redirection(t_command *command, t_token_type type, char *file);
+int is_redirection(t_token_type type);
+void free_commands(t_command *commands);
 
 //utils.c
 void print_tokens(t_token *tokens);
 void free_tokens(t_token *tokens);
 
-
+#endif
 /* 
 minishell.c: Contains the main loop and initialization.
 
