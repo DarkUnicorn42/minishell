@@ -17,8 +17,8 @@ int main(void) {
     t_token *tokens;
     t_command *commands;
 
-    // Signal handling setup
-//    setup_signals();
+    signal(SIGQUIT, handle_sigquit);
+    signal(SIGINT, handle_sigint);
 
     while (1) {
         input = readline("📟 \e[0;32m(s)hell >> \e[0m");

@@ -7,6 +7,7 @@
 # include "libft/libft.h"
 # include <unistd.h>
 # include <stdlib.h>
+# include <signal.h>
 # include <stdio.h>
 # include <fcntl.h>
 # include <sys/wait.h>
@@ -87,6 +88,10 @@ int builtin_exit(char **args);
 void print_tokens(t_token *tokens);
 void free_tokens(t_token *tokens);
 
+//signals.c
+void handle_sigquit(int sig);
+void handle_sigint(int sig);
+
 #endif
 /* 
 minishell.c: Contains the main loop and initialization.
@@ -104,8 +109,6 @@ builtins.c: Implementations of built-in shell commands.
 redirections.c: Functions for handling input/output redirections.
 
 pipes.c: Functions for setting up and managing pipes between processes.
-
-signals.c: Signal handlers and related functions.
 
 memory.c: Memory allocation and deallocation functions.
 
