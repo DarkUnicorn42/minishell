@@ -61,3 +61,16 @@ char **duplicate_envp(char **envp) {
 
     return new_envp;
 }
+
+char *ft_strncat_char(char *str, char c) {
+    size_t len = ft_strlen(str);
+    char *new_str = malloc(len + 2);  // +1 for the new char, +1 for the null terminator
+    if (!new_str) {
+        perror("malloc");
+        return NULL;
+    }
+    ft_strcpy(new_str, str);
+    new_str[len] = c;
+    new_str[len + 1] = '\0';
+    return new_str;
+}

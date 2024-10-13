@@ -17,27 +17,27 @@ int execute_commands(t_command *commands, t_shell *shell) {
     int pipe_fd[2];
     int input_fd = STDIN_FILENO;
     pid_t pid;
+    int status;
 
     while (current_command) {
-        // Check if the current command is a builtin
         if (is_builtin(current_command->args[0])) {
-            // Execute the builtin directly in the main process
-            execute_builtin(current_command, shell);
+            shell->exit_code = execute_builtin(current_command, shell);
         } else {
-            // If there's a next command, create a pipe
             if (current_command->next) {
                 if (pipe(pipe_fd) == -1) {
                     perror("pipe");
+                    shell->exit_code = 1;
                     return 1;
                 }
             }
 
-            // Fork to execute the command
             pid = fork();
             if (pid == -1) {
                 perror("fork");
+                shell->exit_code = 1;
                 return 1;
             }
+
             if (pid == 0) {
                 // Child process
                 if (input_fd != STDIN_FILENO) {
@@ -49,27 +49,35 @@ int execute_commands(t_command *commands, t_shell *shell) {
                     dup2(pipe_fd[1], STDOUT_FILENO);
                     close(pipe_fd[1]);
                 }
-                if (handle_redirections(current_command) == -1)
+                if (handle_redirections(current_command) == -1) {
                     exit(1);
+                }
                 execvp(current_command->args[0], current_command->args);
                 perror("execvp");
                 exit(1);
             } else {
                 // Parent process
-                if (input_fd != STDIN_FILENO)
+                if (input_fd != STDIN_FILENO) {
                     close(input_fd);
-
+                }
                 if (current_command->next) {
                     close(pipe_fd[1]);
                     input_fd = pipe_fd[0];
                 }
-                waitpid(pid, NULL, 0);
+                waitpid(pid, &status, 0);
+                if (WIFEXITED(status)) {
+                    shell->exit_code = WEXITSTATUS(status);
+                } else {
+                    shell->exit_code = 1;
+                }
             }
         }
         current_command = current_command->next;
     }
     return 0;
 }
+
+
 
 
 int handle_redirections(t_command *command)
@@ -130,22 +138,34 @@ int is_builtin(char *cmd)
             !ft_strcmp(cmd, "exit"));
 }
 
-int execute_builtin(t_command *command, t_shell *shell)
-{
-    if (!ft_strcmp(command->args[0], "echo"))
+int execute_builtin(t_command *command, t_shell *shell) {
+    int i = 0;
+    while (command->args[i]) {
+        // Expand each argument of the command using expand_variables
+        char *expanded_arg = expand_variables(command->args[i], shell);
+        if (!expanded_arg) {
+            perror("malloc");
+            return 1;
+        }
+        free(command->args[i]); // Free the original argument
+        command->args[i] = expanded_arg; // Replace it with the expanded version
+        i++;
+    }
+
+    if (ft_strcmp(command->args[0], "echo") == 0)
         return builtin_echo(command->args);
-    else if (!ft_strcmp(command->args[0], "cd"))
+    else if (ft_strcmp(command->args[0], "cd") == 0)
         return builtin_cd(command->args, shell);
-    else if (!ft_strcmp(command->args[0], "pwd"))
+    else if (ft_strcmp(command->args[0], "pwd") == 0)
         return builtin_pwd();
-    else if (!ft_strcmp(command->args[0], "export"))
+    else if (ft_strcmp(command->args[0], "export") == 0)
         return builtin_export(command->args, shell);
-    else if (!ft_strcmp(command->args[0], "unset"))
+    else if (ft_strcmp(command->args[0], "unset") == 0)
         return builtin_unset(command->args);
-    else if (!ft_strcmp(command->args[0], "env"))
+    else if (ft_strcmp(command->args[0], "env") == 0)
         return builtin_env();
-    else if (!ft_strcmp(command->args[0], "exit"))
+    else if (ft_strcmp(command->args[0], "exit") == 0)
         return builtin_exit(command->args);
+
     return 0;
 }
-

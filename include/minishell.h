@@ -18,7 +18,8 @@
 
 
 typedef struct s_shell {
-    char **envp; // Array of environment variables
+    char **envp;
+    int exit_code;
 } t_shell;
 
 typedef enum e_token_type {
@@ -76,11 +77,15 @@ int execute_commands(t_command *commands, t_shell *shell);
 int handle_redirections(t_command *command);
 int is_builtin(char *command);
 int execute_builtin(t_command *command, t_shell *shell);
+char *expand_variables(const char *str, t_shell *shell);
+
+//executor.c
+int execute_commands(t_command *commands, t_shell *shell);
 
 // builtins.c
 int builtin_echo(char **args);
 int builtin_cd(char **args, t_shell *shell);
-int builtin_pwd(void);
+int builtin_pwd();
 int builtin_unset(char **args);
 int builtin_env(void);
 int builtin_exit(char **args);
@@ -93,6 +98,7 @@ int builtin_export(char **args, t_shell *shell);
 void print_tokens(t_token *tokens);
 void free_tokens(t_token *tokens);
 char **duplicate_envp(char **envp);
+char *ft_strncat_char(char *str, char c);
 
 //signals.c
 void handle_sigquit(int sig);
