@@ -12,72 +12,65 @@
 
 #include "../include/minishell.h"
 
-int execute_commands(t_command *commands) {
+int execute_commands(t_command *commands, t_shell *shell) {
     t_command *current_command = commands;
     int pipe_fd[2];
     int input_fd = STDIN_FILENO;
     pid_t pid;
 
-    while (current_command)
-    {
-        // If there's a next command, create a pipe
-        if (current_command->next)
-        {
-            if (pipe(pipe_fd) == -1)
-            {
-                perror("pipe");
-                return (1);
+    while (current_command) {
+        // Check if the current command is a builtin
+        if (is_builtin(current_command->args[0])) {
+            // Execute the builtin directly in the main process
+            execute_builtin(current_command, shell);
+        } else {
+            // If there's a next command, create a pipe
+            if (current_command->next) {
+                if (pipe(pipe_fd) == -1) {
+                    perror("pipe");
+                    return 1;
+                }
             }
-        }
-        // Fork to execute the command
-        pid = fork();
-        if (pid == -1)
-        {
-            perror("fork");
-            return (1);
-        }
-        if (pid == 0)
-        {
-            // Child process
-            if (input_fd != STDIN_FILENO)
-            {
-                dup2(input_fd, STDIN_FILENO);
-                close(input_fd);
+
+            // Fork to execute the command
+            pid = fork();
+            if (pid == -1) {
+                perror("fork");
+                return 1;
             }
-            if (current_command->next)
-            {
-                close(pipe_fd[0]);
-                dup2(pipe_fd[1], STDOUT_FILENO);
-                close(pipe_fd[1]);
-            }
-            if (handle_redirections(current_command) == -1)
-                exit(1);
-            if (is_builtin(current_command->args[0]))
-                exit(execute_builtin(current_command));
-            else
-            {
+            if (pid == 0) {
+                // Child process
+                if (input_fd != STDIN_FILENO) {
+                    dup2(input_fd, STDIN_FILENO);
+                    close(input_fd);
+                }
+                if (current_command->next) {
+                    close(pipe_fd[0]);
+                    dup2(pipe_fd[1], STDOUT_FILENO);
+                    close(pipe_fd[1]);
+                }
+                if (handle_redirections(current_command) == -1)
+                    exit(1);
                 execvp(current_command->args[0], current_command->args);
                 perror("execvp");
                 exit(1);
-            }
-        }
-        else
-        {
-            // Parent process
-            if (input_fd != STDIN_FILENO)
-                close(input_fd);
+            } else {
+                // Parent process
+                if (input_fd != STDIN_FILENO)
+                    close(input_fd);
 
-            if (current_command->next)
-            {
-                close(pipe_fd[1]);
-                input_fd = pipe_fd[0];
+                if (current_command->next) {
+                    close(pipe_fd[1]);
+                    input_fd = pipe_fd[0];
+                }
+                waitpid(pid, NULL, 0);
             }
-            waitpid(pid, NULL, 0);
         }
         current_command = current_command->next;
     }
-    return (0);
+    return 0;
 }
+
 
 int handle_redirections(t_command *command)
 {
@@ -137,12 +130,12 @@ int is_builtin(char *cmd)
             !ft_strcmp(cmd, "exit"));
 }
 
-int execute_builtin(t_command *command)
+int execute_builtin(t_command *command, t_shell *shell)
 {
     if (!ft_strcmp(command->args[0], "echo"))
         return builtin_echo(command->args);
     else if (!ft_strcmp(command->args[0], "cd"))
-        return builtin_cd(command->args);
+        return builtin_cd(command->args, shell);
     else if (!ft_strcmp(command->args[0], "pwd"))
         return builtin_pwd();
     else if (!ft_strcmp(command->args[0], "export"))
@@ -153,5 +146,6 @@ int execute_builtin(t_command *command)
         return builtin_env();
     else if (!ft_strcmp(command->args[0], "exit"))
         return builtin_exit(command->args);
-    return (0);
+    return 0;
 }
+

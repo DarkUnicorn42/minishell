@@ -12,10 +12,21 @@
 
 #include "../include/minishell.h"
 
-int main(void) {
+int main(int argc, char **argv, char **envp) {
+    t_shell shell;
     char *input;
     t_token *tokens;
     t_command *commands;
+
+    (void)argc;
+    (void)argv;
+
+    // Initialize shell struct
+    shell.envp = duplicate_envp(envp);
+    if (!shell.envp) {
+        fprintf(stderr, "Failed to initialize environment variables\n");
+        return 1;
+    }
 
     signal(SIGQUIT, handle_sigquit);
     signal(SIGINT, handle_sigint);
@@ -38,6 +49,7 @@ int main(void) {
 
     while (1) {
         input = readline("📟 \e[0;32m(s)hell >> \e[0m");
+   // printf("env: %s\n", shell.envp[0]);
 
         if (input == NULL) {
             printf("\n\n\e[0;32mExiting shell...\e[0m\n");
@@ -65,12 +77,19 @@ int main(void) {
         }
 
         // Execute the parsed commands
-        execute_commands(commands);
+        execute_commands(commands, &shell);
 
         // Free allocated resources
         free_commands(commands);
         free_tokens(tokens);
         free(input);
     }
+
+    // Free the duplicated environment variables
+    for (int i = 0; shell.envp[i] != NULL; i++) {
+        free(shell.envp[i]);
+    }
+    free(shell.envp);
+
     return 0;
 }

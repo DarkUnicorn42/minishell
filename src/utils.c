@@ -37,3 +37,27 @@ void	free_tokens(t_token *tokens)
 		free(temp);
 	}
 }
+
+char **duplicate_envp(char **envp) {
+    int count = 0;
+    while (envp[count])
+        count++;
+
+    char **new_envp = malloc((count + 1) * sizeof(char *));
+    if (!new_envp)
+        return NULL;
+
+    for (int i = 0; i < count; i++) {
+        new_envp[i] = strdup(envp[i]);
+        if (!new_envp[i]) {
+            // Handle memory allocation failure by freeing already allocated memory
+            while (--i >= 0)
+                free(new_envp[i]);
+            free(new_envp);
+            return NULL;
+        }
+    }
+    new_envp[count] = NULL;
+
+    return new_envp;
+}

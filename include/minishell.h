@@ -17,6 +17,9 @@
 # include <readline/history.h>
 
 
+typedef struct s_shell {
+    char **envp; // Array of environment variables
+} t_shell;
 
 typedef enum e_token_type {
     TOKEN_WORD,
@@ -69,14 +72,14 @@ int is_redirection(t_token_type type);
 void free_commands(t_command *commands);
 
 // executor.c
-int execute_commands(t_command *commands);
+int execute_commands(t_command *commands, t_shell *shell);
 int handle_redirections(t_command *command);
 int is_builtin(char *command);
-int execute_builtin(t_command *command);
+int execute_builtin(t_command *command, t_shell *shell);
 
 // builtins.c
 int builtin_echo(char **args);
-int builtin_cd(char **args);
+int builtin_cd(char **args, t_shell *shell);
 int builtin_pwd(void);
 int builtin_export(char **args);
 int builtin_unset(char **args);
@@ -86,6 +89,7 @@ int builtin_exit(char **args);
 //utils.c
 void print_tokens(t_token *tokens);
 void free_tokens(t_token *tokens);
+char **duplicate_envp(char **envp);
 
 //signals.c
 void handle_sigquit(int sig);
