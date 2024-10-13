@@ -139,7 +139,7 @@ int execute_builtin(t_command *command, t_shell *shell)
     else if (!ft_strcmp(command->args[0], "pwd"))
         return builtin_pwd();
     else if (!ft_strcmp(command->args[0], "export"))
-        return builtin_export(command->args);
+        return builtin_export(command->args, shell);
     else if (!ft_strcmp(command->args[0], "unset"))
         return builtin_unset(command->args);
     else if (!ft_strcmp(command->args[0], "env"))

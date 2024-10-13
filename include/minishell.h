@@ -81,10 +81,13 @@ int execute_builtin(t_command *command, t_shell *shell);
 int builtin_echo(char **args);
 int builtin_cd(char **args, t_shell *shell);
 int builtin_pwd(void);
-int builtin_export(char **args);
 int builtin_unset(char **args);
 int builtin_env(void);
 int builtin_exit(char **args);
+// export.c
+int expand_envp(t_shell *shell, char *new_var);
+int update_envp(char **envp, char *key, char *new_value);
+int builtin_export(char **args, t_shell *shell);
 
 //utils.c
 void print_tokens(t_token *tokens);

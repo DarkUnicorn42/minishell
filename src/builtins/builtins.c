@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
 int builtin_echo(char **args) {
     int i = 1;
@@ -59,8 +59,6 @@ int builtin_cd(char **args, t_shell *shell) {
     return (0);
 }
 
-
-
 int builtin_pwd(void) {
     char cwd[PATH_MAX];
 
@@ -71,19 +69,6 @@ int builtin_pwd(void) {
         perror("pwd");
         return (1);
     }
-}
-
-int builtin_export(char **args) {
-    // Simple implementation for demonstration purposes
-    if (!args[1]) {
-        fprintf(stderr, "export: missing argument\n");
-        return (1);
-    }
-    if (putenv(args[1]) != 0) {
-        perror("export");
-        return (1);
-    }
-    return (0);
 }
 
 int builtin_unset(char **args) {

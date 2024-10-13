@@ -1,7 +1,8 @@
 
 NAME = minishell
 
-SOURCES =	src/minishell.c src/utils.c src/lexer.c src/parser.c src/executor.c src/builtins.c src/signals.c\
+SOURCES =	src/minishell.c src/utils.c src/lexer.c src/parser.c src/executor.c src/signals.c \
+			src/builtins/builtins.c src/builtins/export.c \
 
 OBJECTS = $(SOURCES:.c=.o)
 
