@@ -57,11 +57,8 @@ void add_token(t_token **tokens, t_token *new_token);
 void skip_whitespace(const char *input, size_t *i);
 int is_operator_char(char c);
 char *collect_word(const char *input, size_t *i);
-char *handle_quotes(const char *input, size_t *i, char *word);
-char *append_substring(const char *input, size_t start, size_t len, char *word);
 char *collect_quoted(const char *input, size_t *i, char quote_char);
 t_token_type identify_operator(const char *input, size_t *i);
-void free_tokens(t_token *tokens);
 
 // parser.c
 t_command *parse_tokens(t_token *tokens);
@@ -79,8 +76,10 @@ int is_builtin(char *command);
 int execute_builtin(t_command *command, t_shell *shell);
 char *expand_variables(const char *str, t_shell *shell);
 
-//executor.c
-int execute_commands(t_command *commands, t_shell *shell);
+//pipes.c
+int create_pipe(int pipe_fd[2]);
+pid_t fork_process(void);
+void handle_child(int input_fd, int pipe_fd[2], t_command *current_command, t_shell *shell);
 
 // builtins.c
 int builtin_echo(char **args);
@@ -99,6 +98,7 @@ void print_tokens(t_token *tokens);
 void free_tokens(t_token *tokens);
 char **duplicate_envp(char **envp);
 char *ft_strncat_char(char *str, char c);
+char *join_and_free(char *str1, const char *str2);
 
 //signals.c
 void handle_sigquit(int sig);

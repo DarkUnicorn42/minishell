@@ -18,6 +18,7 @@ int execute_commands(t_command *commands, t_shell *shell) {
     int input_fd = STDIN_FILENO;
     pid_t pid;
     int status;
+    pid_t last_pid = -1; // To keep track of the last command's process ID
 
     while (current_command) {
         if (is_builtin(current_command->args[0])) {
@@ -31,7 +32,7 @@ int execute_commands(t_command *commands, t_shell *shell) {
                 }
             }
 
-            pid = fork();
+            pid = fork_process();
             if (pid == -1) {
                 perror("fork");
                 shell->exit_code = 1;
@@ -57,6 +58,7 @@ int execute_commands(t_command *commands, t_shell *shell) {
                 exit(1);
             } else {
                 // Parent process
+                last_pid = pid; // Store the last child process ID
                 if (input_fd != STDIN_FILENO) {
                     close(input_fd);
                 }
@@ -64,64 +66,51 @@ int execute_commands(t_command *commands, t_shell *shell) {
                     close(pipe_fd[1]);
                     input_fd = pipe_fd[0];
                 }
-                waitpid(pid, &status, 0);
-                if (WIFEXITED(status)) {
-                    shell->exit_code = WEXITSTATUS(status);
-                } else {
-                    shell->exit_code = 1;
-                }
             }
         }
         current_command = current_command->next;
     }
+
+    // Wait for all child processes and update the exit code
+    while ((pid = wait(&status)) > 0) {
+        if (pid == last_pid && WIFEXITED(status)) {
+            shell->exit_code = WEXITSTATUS(status);
+        }
+    }
+
     return 0;
 }
 
 
-
-
-int handle_redirections(t_command *command)
-{
+int handle_redirections(t_command *command) {
     t_redirection *redir = command->redirections;
     int fd;
 
-    while (redir)
-    {
-        if (redir->type == TOKEN_REDIRECT_IN)
-        {
+    while (redir) {
+        if (redir->type == TOKEN_REDIRECT_IN) {
             fd = open(redir->file, O_RDONLY);
-            if (fd == -1)
-            {
+            if (fd == -1) {
                 perror("open");
                 return (-1);
             }
             dup2(fd, STDIN_FILENO);
-        }
-        else if (redir->type == TOKEN_REDIRECT_OUT)
-        {
+        } else if (redir->type == TOKEN_REDIRECT_OUT) {
             fd = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-            if (fd == -1)
-            {
+            if (fd == -1) {
                 perror("open");
                 return (-1);
             }
             dup2(fd, STDOUT_FILENO);
-        }
-        else if (redir->type == TOKEN_APPEND)
-        {
+        } else if (redir->type == TOKEN_APPEND) {
             fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
-            if (fd == -1)
-            {
+            if (fd == -1) {
                 perror("open");
                 return (-1);
             }
             dup2(fd, STDOUT_FILENO);
-        }
-        else if (redir->type == TOKEN_HEREDOC)
-        {
+        } else if (redir->type == TOKEN_HEREDOC) {
             // Handle heredoc (<<)
-            // << should be given a delimiter, then read the input until a line containing the delimiter is seen. 
-            // However, it doesn’t have to update the history!
+            // << should be given a delimiter, then read the input until a line containing the delimiter is seen.
         }
 
         close(fd);
@@ -130,8 +119,7 @@ int handle_redirections(t_command *command)
     return (0);
 }
 
-int is_builtin(char *cmd)
-{
+int is_builtin(char *cmd) {
     return (!ft_strcmp(cmd, "echo") || !ft_strcmp(cmd, "cd") ||
             !ft_strcmp(cmd, "pwd") || !ft_strcmp(cmd, "export") ||
             !ft_strcmp(cmd, "unset") || !ft_strcmp(cmd, "env") ||

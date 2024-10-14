@@ -75,7 +75,8 @@ int builtin_export(char **args, t_shell *shell)
                 }
             }
             free(key);
-        } else {
+        } 
+        else {
             printf("export: `%s': not a valid identifier\n", args[i]);
         }
         i++;

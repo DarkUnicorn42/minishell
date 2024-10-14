@@ -74,3 +74,12 @@ char *ft_strncat_char(char *str, char c) {
     new_str[len + 1] = '\0';
     return new_str;
 }
+
+char *join_and_free(char *str1, const char *str2)
+{
+    char *result;
+
+    result = ft_strjoin(str1, str2);
+    free(str1);
+    return result;
+}
