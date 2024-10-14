@@ -103,6 +103,8 @@ char *ft_strncat_char(char *str, char c);
 //signals.c
 void handle_sigquit(int sig);
 void handle_sigint(int sig);
+void ignore_sigquit(void);
+void setup_signals(void);
 
 #endif
 /* 

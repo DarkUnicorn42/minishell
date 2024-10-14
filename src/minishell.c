@@ -29,8 +29,10 @@ int main(int argc, char **argv, char **envp) {
     }
     shell.exit_code = 0; 
 
-    signal(SIGQUIT, handle_sigquit);
-    signal(SIGINT, handle_sigint);
+    //signal(SIGQUIT, handle_sigquit);
+    //signal(SIGINT, handle_sigint);
+
+    setup_signals();
 
     // printf("\e[38;5;113m***************************************************************\n");
 	// printf("\e[38;5;113m*  .-.   .-..-..-. .-..-.    .----..-. .-..----..-.   .-.     *\n");
