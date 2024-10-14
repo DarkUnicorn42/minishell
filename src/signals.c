@@ -21,7 +21,7 @@ void handle_sigquit(int sig)
 void handle_sigint(int sig)
 {
     (void)sig;
-    write(STDOUT_FILENO, "\n📟 \e[0;32m(s)hell >> \e[0m", 28);
+    write(STDOUT_FILENO, "\n", 1);
     rl_on_new_line();
     rl_redisplay();
 }
