@@ -98,3 +98,10 @@ int builtin_exit(char **args) {
     }
     exit(status);
 }
+
+int builtin_history(t_history *history) {
+    for (int i = 0; i < history->count; i++) {
+        printf("%d %s\n", i + 1, history->commands[i]);
+    }
+    return 0;
+}

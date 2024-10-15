@@ -12,7 +12,7 @@
 
 #include "../include/minishell.h"
 
-int execute_commands(t_command *commands, t_shell *shell) {
+int execute_commands(t_command *commands, t_shell *shell, t_history *history) {
     t_command *current_command = commands;
     int pipe_fd[2];
     int input_fd = STDIN_FILENO;
@@ -22,7 +22,7 @@ int execute_commands(t_command *commands, t_shell *shell) {
 
     while (current_command) {
         if (is_builtin(current_command->args[0])) {
-            shell->exit_code = execute_builtin(current_command, shell);
+            shell->exit_code = execute_builtin(current_command, shell, history);
         } else {
             if (current_command->next) {
                 if (pipe(pipe_fd) == -1) {
@@ -123,10 +123,10 @@ int is_builtin(char *cmd) {
     return (!ft_strcmp(cmd, "echo") || !ft_strcmp(cmd, "cd") ||
             !ft_strcmp(cmd, "pwd") || !ft_strcmp(cmd, "export") ||
             !ft_strcmp(cmd, "unset") || !ft_strcmp(cmd, "env") ||
-            !ft_strcmp(cmd, "exit"));
+            !ft_strcmp(cmd, "exit") || !ft_strcmp(cmd, "history"));
 }
 
-int execute_builtin(t_command *command, t_shell *shell) {
+int execute_builtin(t_command *command, t_shell *shell, t_history *history) {
     int i = 0;
     while (command->args[i]) {
         // Expand each argument of the command using expand_variables
@@ -154,6 +154,8 @@ int execute_builtin(t_command *command, t_shell *shell) {
         return builtin_env();
     else if (ft_strcmp(command->args[0], "exit") == 0)
         return builtin_exit(command->args);
+    else if (ft_strcmp(command->args[0], "history") == 0)
+        return builtin_history(history);
 
     return 0;
 }

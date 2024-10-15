@@ -34,6 +34,11 @@ int main(int argc, char **argv, char **envp) {
 
     setup_signals();
 
+    t_history history;
+    history.commands = malloc(sizeof(char *) * INITIAL_CAPACITY);
+    history.count = 0;
+    history.capacity = INITIAL_CAPACITY;
+
     // printf("\e[38;5;113m***************************************************************\n");
 	// printf("\e[38;5;113m*  .-.   .-..-..-. .-..-.    .----..-. .-..----..-.   .-.     *\n");
 	// printf("\e[38;5;113m*  |  `.'  || ||  `| || |   { {__  | {_} || {_  | |   | |     *\n");
@@ -60,8 +65,14 @@ int main(int argc, char **argv, char **envp) {
             // printf("\n\e[1;32m✖️ Shell closed.\e[0m\n\n");
             break;
         }
-        if (input && *input)
+        if (input && *input) {
             add_history(input);
+            if (history.count >= history.capacity) {
+                history.capacity *= 2;
+                history.commands = realloc(history.commands, sizeof(char *) * history.capacity);
+            }
+            history.commands[history.count++] = strdup(input);
+        }
 
         // Call lexer to tokenize the input
         tokens = lexer(input);
@@ -81,13 +92,18 @@ int main(int argc, char **argv, char **envp) {
         }
 
         // Execute the parsed commands
-        execute_commands(commands, &shell);
+        execute_commands(commands, &shell, &history);
 
         // Free allocated resources
         free_commands(commands);
         free_tokens(tokens);
         free(input);
     }
+
+    for (int i = 0; i < history.count; i++) {
+        free(history.commands[i]);
+    }
+    free(history.commands);
 
     // Free the duplicated environment variables
     for (int i = 0; shell.envp[i] != NULL; i++) {

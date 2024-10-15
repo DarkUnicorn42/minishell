@@ -3,6 +3,8 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+#define INITIAL_CAPACITY 100
+
 # include "libft/libft.h"
 # include <unistd.h>
 # include <stdlib.h>
@@ -21,6 +23,12 @@ typedef struct s_shell {
     char **envp;
     int exit_code;
 } t_shell;
+
+typedef struct s_history {
+    char **commands;    // Tablica komend
+    int count;          // Liczba zapisanych komend
+    int capacity;       // Pojemność tablicy
+} t_history;
 
 typedef enum e_token_type {
     TOKEN_WORD,
@@ -70,10 +78,10 @@ int is_redirection(t_token_type type);
 void free_commands(t_command *commands);
 
 // executor.c
-int execute_commands(t_command *commands, t_shell *shell);
+int execute_commands(t_command *commands, t_shell *shell, t_history *history);
 int handle_redirections(t_command *command);
 int is_builtin(char *command);
-int execute_builtin(t_command *command, t_shell *shell);
+int execute_builtin(t_command *command, t_shell *shell, t_history *history);
 char *expand_variables(const char *str, t_shell *shell);
 
 //pipes.c
@@ -88,6 +96,8 @@ int builtin_pwd();
 int builtin_unset(char **args);
 int builtin_env(void);
 int builtin_exit(char **args);
+int builtin_history(t_history *history);
+
 // export.c
 int expand_envp(t_shell *shell, char *new_var);
 int update_envp(char **envp, char *key, char *new_value);
