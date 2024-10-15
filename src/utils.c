@@ -83,3 +83,14 @@ char *join_and_free(char *str1, const char *str2)
     free(str1);
     return result;
 }
+
+void skip_whitespace(const char *input, size_t *i)
+{
+    while (input[*i] == ' ' || input[*i] == '\t')
+        (*i)++;
+}
+
+int is_operator_char(char c)
+{
+    return (c == '|' || c == '<' || c == '>' || c == ';');
+}

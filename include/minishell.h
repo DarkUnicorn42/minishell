@@ -30,14 +30,16 @@ typedef struct s_history {
     int capacity;       // Pojemność tablicy
 } t_history;
 
-typedef enum e_token_type {
+typedef enum {
     TOKEN_WORD,
-    TOKEN_PIPE,            // |
-    TOKEN_REDIRECT_IN,     // <
-    TOKEN_REDIRECT_OUT,    // >
-    TOKEN_HEREDOC,         // <<
-    TOKEN_APPEND,          // >>
-    TOKEN_EOF              // End of input
+    TOKEN_SINGLE_QUOTED,
+    TOKEN_DOUBLE_QUOTED,
+    TOKEN_PIPE,
+    TOKEN_REDIRECT_IN,
+    TOKEN_REDIRECT_OUT,
+    TOKEN_APPEND,
+    TOKEN_HEREDOC,
+    TOKEN_EOF
 } t_token_type;
 
 typedef struct s_token {
@@ -55,24 +57,24 @@ typedef struct s_redirection {
 typedef struct s_command {
     char            **args;        // Command and arguments (e.g., {"ls", "-la", NULL})
     t_redirection   *redirections; // Linked list of redirections
+    t_token_type    *arg_types;    // Array of token types for each argument
     struct s_command *next;        // For a chain of commands connected by pipes
 } t_command;
+
 
 //lexer.c
 t_token *lexer(const char *input);
 t_token *create_token(t_token_type type, char *value);
 void add_token(t_token **tokens, t_token *new_token);
-void skip_whitespace(const char *input, size_t *i);
-int is_operator_char(char c);
-char *collect_word(const char *input, size_t *i);
-char *collect_quoted(const char *input, size_t *i, char quote_char);
+t_token *collect_word_token(const char *input, size_t *i);
+t_token *collect_quoted(const char *input, size_t *i, char quote_char);
 t_token_type identify_operator(const char *input, size_t *i);
 
 // parser.c
 t_command *parse_tokens(t_token *tokens);
 t_command *create_command();
 void add_command(t_command **commands, t_command *new_command);
-void add_argument(t_command *command, char *arg);
+void add_argument(t_command *command, char *arg, t_token_type type);
 void add_redirection(t_command *command, t_token_type type, char *file);
 int is_redirection(t_token_type type);
 void free_commands(t_command *commands);
@@ -82,6 +84,12 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history);
 int handle_redirections(t_command *command);
 int is_builtin(char *command);
 int execute_builtin(t_command *command, t_shell *shell, t_history *history);
+char *expand_variables(const char *str, t_shell *shell);
+
+//expander.c
+char *expand_variable(const char *str, int *i);
+char *expand_exit_code(t_shell *shell, int *i);
+char *append_char(char *result, char c);
 char *expand_variables(const char *str, t_shell *shell);
 
 //pipes.c
@@ -109,6 +117,8 @@ void free_tokens(t_token *tokens);
 char **duplicate_envp(char **envp);
 char *ft_strncat_char(char *str, char c);
 char *join_and_free(char *str1, const char *str2);
+void skip_whitespace(const char *input, size_t *i);
+int is_operator_char(char c);
 
 //signals.c
 void handle_sigquit(int sig);

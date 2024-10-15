@@ -81,7 +81,6 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history) {
     return 0;
 }
 
-
 int handle_redirections(t_command *command) {
     t_redirection *redir = command->redirections;
     int fd;
@@ -128,18 +127,41 @@ int is_builtin(char *cmd) {
 
 int execute_builtin(t_command *command, t_shell *shell, t_history *history) {
     int i = 0;
+
     while (command->args[i]) {
-        // Expand each argument of the command using expand_variables
-        char *expanded_arg = expand_variables(command->args[i], shell);
-        if (!expanded_arg) {
-            perror("malloc");
-            return 1;
+        if (command->arg_types[i] == TOKEN_DOUBLE_QUOTED) {
+            // Expand arguments if they are double-quoted
+            // printf("Expanding double-quoted: %s\n", command->args[i]);
+            char *expanded_arg = expand_variables(command->args[i], shell);
+            if (!expanded_arg) {
+                perror("malloc");
+                return 1;
+            }
+            free(command->args[i]);
+            command->args[i] = expanded_arg;
         }
-        free(command->args[i]); // Free the original argument
-        command->args[i] = expanded_arg; // Replace it with the expanded version
+        else if (command->arg_types[i] == TOKEN_SINGLE_QUOTED) {
+            // Single-quoted strings should not be expanded
+            // printf("Single quoted (no expansion): %s\n", command->args[i]);
+        }
+        else if (command->arg_types[i] == TOKEN_WORD) {
+            // Expand arguments if they are unquoted
+            // printf("Expanding unquoted: %s\n", command->args[i]);
+            char *expanded_arg = expand_variables(command->args[i], shell);
+            if (!expanded_arg) {
+                perror("malloc");
+                return 1;
+            }
+            free(command->args[i]);
+            command->args[i] = expanded_arg;
+        }
+        else {
+            printf("Unknown token type for argument: %s\n", command->args[i]);
+        }
         i++;
     }
 
+    // Execute the appropriate builtin command
     if (ft_strcmp(command->args[0], "echo") == 0)
         return builtin_echo(command->args);
     else if (ft_strcmp(command->args[0], "cd") == 0)

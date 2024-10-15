@@ -1,16 +1,4 @@
-
 #include "../include/minishell.h"
-
-char	*expand_exit_code(t_shell *shell, int *i)
-{
-	char	*expansion;
-
-	expansion = ft_itoa(shell->exit_code);
-	if (!expansion)
-		perror("malloc");
-	*i += 2;
-	return (expansion);
-}
 
 char	*expand_variable(const char *str, int *i)
 {
@@ -27,42 +15,30 @@ char	*expand_variable(const char *str, int *i)
 		perror("malloc");
 		return (NULL);
 	}
-	expansion = getenv(var_name);
+	expansion = getenv(var_name) ? getenv(var_name) : "";
 	free(var_name);
-	if (!expansion)
-		expansion = "";
 	(*i)++;
 	return (ft_strdup(expansion));
 }
 
-char	*append_char(char *result, char c)
+char	*expand_exit_code(t_shell *shell, int *i)
 {
-	char	temp[2];
-	char	*new_result;
-
-	temp[0] = c;
-	temp[1] = '\0';
-	new_result = ft_strjoin(result, temp);
-	free(result);
-	if (!new_result)
-		perror("malloc");
-	return (new_result);
+	*i += 2;  // Skip "$?"
+	return (ft_itoa(shell->exit_code));
 }
 
 char	*expand_variables(const char *str, t_shell *shell)
 {
-	char	*result;
+	char	*result = ft_strdup("");
 	char	*expansion;
-	char	*temp_result;
-	int		i;
+	int		i = 0;
 
-	result = ft_strdup("");
 	if (!result)
 	{
 		perror("malloc");
 		return (NULL);
 	}
-	i = 0;
+
 	while (str[i])
 	{
 		if (str[i] == '$')
@@ -76,28 +52,31 @@ char	*expand_variables(const char *str, t_shell *shell)
 				expansion = ft_strdup("$");
 				i++;
 			}
-			if (!expansion)
-			{
-				free(result);
-				return (NULL);
-			}
-			temp_result = ft_strjoin(result, expansion);
-			free(result);
-			free(expansion);
-			if (!temp_result)
-			{
-				perror("malloc");
-				return (NULL);
-			}
-			result = temp_result;
 		}
 		else
 		{
-			result = append_char(result, str[i]);
-			if (!result)
-				return (NULL);
+			expansion = ft_substr(str, i, 1);
 			i++;
 		}
+
+		if (!expansion)
+		{
+			free(result);
+			return (NULL);
+		}
+
+		char *temp = ft_strjoin(result, expansion);
+		free(result);
+		free(expansion);
+
+		if (!temp)
+		{
+			perror("malloc");
+			return (NULL);
+		}
+
+		result = temp;
 	}
+
 	return (result);
 }

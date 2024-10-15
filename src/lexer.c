@@ -12,99 +12,75 @@
 
 #include "../include/minishell.h"
 
-t_token	*lexer(const char *input)
+t_token *lexer(const char *input)
 {
-    t_token_type	type;
-    char			*word;
-    t_token			*tokens;
-    size_t			i;
+    t_token *tokens = NULL;
+    size_t i = 0;
 
-    i = 0;
-    tokens = NULL;
     while (input[i] != '\0')
     {
         skip_whitespace(input, &i);
         if (input[i] == '\0')
-            break ;
+            break;
+
         if (is_operator_char(input[i]))
         {
-            type = identify_operator(input, &i);
+            t_token_type type = identify_operator(input, &i);
+            //printf("Lexer: Identified operator -> Type: %d\n", type);
             add_token(&tokens, create_token(type, NULL));
         }
         else
         {
-            word = collect_word(input, &i);
-            if (word == NULL)
+            t_token *new_token = collect_word_token(input, &i);
+            //printf("token type: %d\n", new_token->type);
+            if (!new_token)
             {
                 free_tokens(tokens);
-                return (NULL);
+                return NULL;
             }
-            add_token(&tokens, create_token(TOKEN_WORD, word));
+            add_token(&tokens, new_token);
         }
     }
+
     add_token(&tokens, create_token(TOKEN_EOF, NULL));
-    return (tokens);
+    return tokens;
 }
 
-t_token	*create_token(t_token_type type, char *value)
-{
-    t_token	*token;
-
-    token = malloc(sizeof(t_token));
-    if (!token)
-        return (NULL);
-    token->type = type;
-    token->value = value;
-    token->next = NULL;
-    return (token);
-}
-
-void add_token(t_token **tokens, t_token *new_token)
-{
-    t_token *temp;
-
-    if (*tokens == NULL)
-        *tokens = new_token;
-    else
-    {
-        temp = *tokens;
-        while (temp->next != NULL)
-            temp = temp->next;
-        temp->next = new_token;
-    }
-}
-
-void skip_whitespace(const char *input, size_t *i)
-{
-    while (input[*i] == ' ' || input[*i] == '\t')
-        (*i)++;
-}
-
-int is_operator_char(char c)
-{
-    return (c == '|' || c == '<' || c == '>' || c == ';');
-}
-
-char *collect_word(const char *input, size_t *i)
+//to clean later V
+t_token *collect_word_token(const char *input, size_t *i)
 {
     char *word = ft_strdup("");
+    t_token_type token_type = TOKEN_WORD; // Default type is WORD
+    t_token *tokens = NULL;
+
     if (!word)
-        return (NULL);
+        return NULL;
 
     while (input[*i] != '\0' && !isspace((unsigned char)input[*i]) && !is_operator_char(input[*i]))
     {
         if (input[*i] == '\'' || input[*i] == '"')
         {
-            char *quoted = collect_quoted(input, i, input[*i]);
-            if (!quoted)
+            t_token *quoted_token = collect_quoted(input, i, input[*i]);
+            if (!quoted_token)
             {
                 free(word);
-                return (NULL);
+                return NULL;
             }
-            word = join_and_free(word, quoted);
-            free(quoted);
-            if (!word)
-                return (NULL);
+
+            // If there's already an unquoted segment collected, add it as a separate token
+            if (*word != '\0')
+            {
+                add_token(&tokens, create_token(token_type, word));
+                word = ft_strdup("");
+                if (!word)
+                {
+                    free_tokens(tokens);
+                    return NULL;
+                }
+            }
+
+            // Add the quoted token to the list
+            add_token(&tokens, quoted_token);
         }
         else
         {
@@ -112,41 +88,67 @@ char *collect_word(const char *input, size_t *i)
             while (input[*i] != '\0' && !isspace((unsigned char)input[*i]) &&
                    !is_operator_char(input[*i]) && input[*i] != '\'' && input[*i] != '"')
                 (*i)++;
+
             char *substr = ft_substr(input, start, *i - start);
             if (!substr)
             {
                 free(word);
-                return (NULL);
+                return NULL;
             }
-            word = join_and_free(word, substr);
-            free(substr);
-            if (!word)
-                return (NULL);
+
+            char *temp = join_and_free(word, substr);
+            if (!temp)
+            {
+                free(word);
+                return NULL;
+            }
+            word = temp;
         }
     }
-    return word;
+
+    // If there's an unquoted segment left, add it as a separate token
+    if (*word != '\0')
+    {
+        add_token(&tokens, create_token(TOKEN_WORD, word));
+    }
+    else
+    {
+        free(word);
+    }
+
+    return tokens;
 }
 
-char *collect_quoted(const char *input, size_t *i, char quote_char)
+
+t_token *collect_quoted(const char *input, size_t *i, char quote_char)
 {
+    t_token_type type;
     (*i)++; // Skip the opening quote
     size_t start = *i;
-    size_t len = 0;
 
     while (input[*i] != '\0' && input[*i] != quote_char)
-    {
-        len++;
         (*i)++;
-    }
+
     if (input[*i] != quote_char)
     {
         fprintf(stderr, "Error: Unclosed quote\n");
         return NULL;
     }
-    char *quoted = ft_substr(input, start, len);
+
+    char *quoted = ft_substr(input, start, *i - start);
+    if (!quoted)
+        return NULL;
+
     (*i)++; // Skip the closing quote
-    return quoted;
+
+    if (quote_char == '"')
+        type = TOKEN_DOUBLE_QUOTED;
+    else
+        type = TOKEN_SINGLE_QUOTED;
+
+    return create_token(type, quoted);
 }
+
 
 t_token_type identify_operator(const char *input, size_t *i)
 {
@@ -176,4 +178,32 @@ t_token_type identify_operator(const char *input, size_t *i)
         return TOKEN_REDIRECT_OUT;
     }
     return TOKEN_EOF; // Should not reach here
+}
+
+t_token	*create_token(t_token_type type, char *value)
+{
+    t_token	*token;
+
+    token = malloc(sizeof(t_token));
+    if (!token)
+        return (NULL);
+    token->type = type;
+    token->value = value;
+    token->next = NULL;
+    return (token);
+}
+
+void add_token(t_token **tokens, t_token *new_token)
+{
+    t_token *temp;
+
+    if (*tokens == NULL)
+        *tokens = new_token;
+    else
+    {
+        temp = *tokens;
+        while (temp->next != NULL)
+            temp = temp->next;
+        temp->next = new_token;
+    }
 }

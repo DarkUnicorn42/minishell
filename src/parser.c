@@ -17,12 +17,12 @@ t_command *parse_tokens(t_token *tokens) {
     t_command *current_command = NULL;
 
     while (tokens && tokens->type != TOKEN_EOF) {
-        if (tokens->type == TOKEN_WORD) {
+        if (tokens->type == TOKEN_WORD || tokens->type == TOKEN_SINGLE_QUOTED || tokens->type == TOKEN_DOUBLE_QUOTED) {
             if (!current_command) {
                 current_command = create_command();
                 add_command(&commands, current_command);
             }
-            add_argument(current_command, tokens->value);
+            add_argument(current_command, tokens->value, tokens->type);
         } else if (tokens->type == TOKEN_PIPE) {
             current_command = NULL; // Start a new command after a pipe
         } else if (is_redirection(tokens->type)) {
@@ -37,6 +37,15 @@ t_command *parse_tokens(t_token *tokens) {
                 free_commands(commands);
                 return NULL;
             }
+
+            // // Debug statement for redirections
+            // printf("Parser: Adding redirection -> Type: %s, File: %s\n",
+            //     tokens->type == TOKEN_REDIRECT_IN ? "REDIRECT_IN" :
+            //     tokens->type == TOKEN_REDIRECT_OUT ? "REDIRECT_OUT" :
+            //     tokens->type == TOKEN_APPEND ? "APPEND" :
+            //     tokens->type == TOKEN_HEREDOC ? "HEREDOC" : "UNKNOWN",
+            //     tokens->value);
+
             add_redirection(current_command, tokens->type, tokens->value);
         }
         tokens = tokens->next;
@@ -44,11 +53,20 @@ t_command *parse_tokens(t_token *tokens) {
     return commands;
 }
 
+
+
 t_command *create_command() {
     t_command *cmd = malloc(sizeof(t_command));
     if (!cmd)
         return NULL;
-    cmd->args = NULL;
+    cmd->args = malloc(sizeof(char *) * 1);
+    cmd->arg_types = malloc(sizeof(t_token_type) * 1);
+    if (!cmd->args || !cmd->arg_types) {
+        free(cmd);
+        return NULL;
+    }
+    cmd->args[0] = NULL;
+    cmd->arg_types[0] = TOKEN_EOF; // Just to initialize the array
     cmd->redirections = NULL;
     cmd->next = NULL;
     return cmd;
@@ -65,21 +83,41 @@ void add_command(t_command **commands, t_command *new_command) {
     }
 }
 
-void add_argument(t_command *command, char *arg) {
+void add_argument(t_command *command, char *arg, t_token_type type) {
     int i = 0;
+
+    // Count existing arguments
     while (command->args && command->args[i])
         i++;
+
+    // Allocate memory for new arguments and types
     char **new_args = malloc(sizeof(char *) * (i + 2));
-    if (!new_args)
+    t_token_type *new_arg_types = malloc(sizeof(t_token_type) * (i + 1));
+    if (!new_args || !new_arg_types)
         return;
-    for (int j = 0; j < i; j++)
+
+    // Copy existing arguments and types to new arrays
+    for (int j = 0; j < i; j++) {
         new_args[j] = command->args[j];
+        new_arg_types[j] = command->arg_types[j];
+    }
+
+    // Add the new argument and type
     new_args[i] = ft_strdup(arg);
     new_args[i + 1] = NULL;
+    new_arg_types[i] = type;
+
+    // Free the old arrays if they exist
     if (command->args)
         free(command->args);
+    if (command->arg_types)
+        free(command->arg_types);
+
+    // Update the command with the new arrays
     command->args = new_args;
+    command->arg_types = new_arg_types;
 }
+
 
 void add_redirection(t_command *command, t_token_type type, char *file) {
     t_redirection *redir = malloc(sizeof(t_redirection));
