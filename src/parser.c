@@ -22,8 +22,17 @@ t_command *parse_tokens(t_token *tokens) {
                 current_command = create_command();
                 add_command(&commands, current_command);
             }
+
+            // Debug Statement
+            // printf("Parser: Adding argument -> Value: %s, Type: %s\n",
+            //     tokens->value,
+            //     tokens->type == TOKEN_SINGLE_QUOTED ? "SINGLE_QUOTED" :
+            //     tokens->type == TOKEN_DOUBLE_QUOTED ? "DOUBLE_QUOTED" : "WORD");
+
+            // Add arguments based on their type
             add_argument(current_command, tokens->value, tokens->type);
         } else if (tokens->type == TOKEN_PIPE) {
+            printf("Parser: Found pipe -> Starting a new command\n");
             current_command = NULL; // Start a new command after a pipe
         } else if (is_redirection(tokens->type)) {
             if (!current_command) {
@@ -38,13 +47,8 @@ t_command *parse_tokens(t_token *tokens) {
                 return NULL;
             }
 
-            // // Debug statement for redirections
-            // printf("Parser: Adding redirection -> Type: %s, File: %s\n",
-            //     tokens->type == TOKEN_REDIRECT_IN ? "REDIRECT_IN" :
-            //     tokens->type == TOKEN_REDIRECT_OUT ? "REDIRECT_OUT" :
-            //     tokens->type == TOKEN_APPEND ? "APPEND" :
-            //     tokens->type == TOKEN_HEREDOC ? "HEREDOC" : "UNKNOWN",
-            //     tokens->value);
+            // Debug Statement for redirections
+            // printf("Parser: Adding redirection -> Type: %d, File: %s\n", tokens->type, tokens->value);
 
             add_redirection(current_command, tokens->type, tokens->value);
         }
@@ -52,7 +56,6 @@ t_command *parse_tokens(t_token *tokens) {
     }
     return commands;
 }
-
 
 
 t_command *create_command() {

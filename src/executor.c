@@ -131,7 +131,7 @@ int execute_builtin(t_command *command, t_shell *shell, t_history *history) {
     while (command->args[i]) {
         if (command->arg_types[i] == TOKEN_DOUBLE_QUOTED) {
             // Expand arguments if they are double-quoted
-            // printf("Expanding double-quoted: %s\n", command->args[i]);
+            // printf("Executor: Expanding double-quoted argument -> %s\n", command->args[i]);
             char *expanded_arg = expand_variables(command->args[i], shell);
             if (!expanded_arg) {
                 perror("malloc");
@@ -139,14 +139,12 @@ int execute_builtin(t_command *command, t_shell *shell, t_history *history) {
             }
             free(command->args[i]);
             command->args[i] = expanded_arg;
-        }
-        else if (command->arg_types[i] == TOKEN_SINGLE_QUOTED) {
+        } else if (command->arg_types[i] == TOKEN_SINGLE_QUOTED) {
             // Single-quoted strings should not be expanded
-            // printf("Single quoted (no expansion): %s\n", command->args[i]);
-        }
-        else if (command->arg_types[i] == TOKEN_WORD) {
+            // printf("Executor: No expansion for single-quoted argument -> %s\n", command->args[i]);
+        } else if (command->arg_types[i] == TOKEN_WORD) {
             // Expand arguments if they are unquoted
-            // printf("Expanding unquoted: %s\n", command->args[i]);
+            // printf("Executor: Expanding unquoted argument -> %s\n", command->args[i]);
             char *expanded_arg = expand_variables(command->args[i], shell);
             if (!expanded_arg) {
                 perror("malloc");
@@ -154,12 +152,14 @@ int execute_builtin(t_command *command, t_shell *shell, t_history *history) {
             }
             free(command->args[i]);
             command->args[i] = expanded_arg;
-        }
-        else {
-            printf("Unknown token type for argument: %s\n", command->args[i]);
+        } else {
+            printf("Executor: Unknown token type for argument -> %s\n", command->args[i]);
         }
         i++;
     }
+
+    // Debug statement for executing builtins
+    // printf("Executor: Executing builtin command -> %s\n", command->args[0]);
 
     // Execute the appropriate builtin command
     if (ft_strcmp(command->args[0], "echo") == 0)

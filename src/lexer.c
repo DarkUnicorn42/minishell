@@ -26,13 +26,11 @@ t_token *lexer(const char *input)
         if (is_operator_char(input[i]))
         {
             t_token_type type = identify_operator(input, &i);
-            //printf("Lexer: Identified operator -> Type: %d\n", type);
             add_token(&tokens, create_token(type, NULL));
         }
         else
         {
             t_token *new_token = collect_word_token(input, &i);
-            //printf("token type: %d\n", new_token->type);
             if (!new_token)
             {
                 free_tokens(tokens);
@@ -45,12 +43,10 @@ t_token *lexer(const char *input)
     add_token(&tokens, create_token(TOKEN_EOF, NULL));
     return tokens;
 }
-
-//to clean later V
+// kill me please
 t_token *collect_word_token(const char *input, size_t *i)
 {
     char *word = ft_strdup("");
-    t_token_type token_type = TOKEN_WORD; // Default type is WORD
     t_token *tokens = NULL;
 
     if (!word)
@@ -60,6 +56,23 @@ t_token *collect_word_token(const char *input, size_t *i)
     {
         if (input[*i] == '\'' || input[*i] == '"')
         {
+            char quote_char = input[*i];
+
+            if (input[*i + 1] == quote_char)
+            {
+                if ((*i == 0 || isspace((unsigned char)input[*i - 1])) &&
+                    (input[*i + 2] == '\0' || isspace((unsigned char)input[*i + 2])))
+                {
+                    (*i) += 2;
+                    add_token(&tokens, create_token(TOKEN_WORD, ft_strdup("")));
+                }
+                else
+                {
+                    (*i) += 2;
+                }
+                continue;
+            }
+
             t_token *quoted_token = collect_quoted(input, i, input[*i]);
             if (!quoted_token)
             {
@@ -67,10 +80,9 @@ t_token *collect_word_token(const char *input, size_t *i)
                 return NULL;
             }
 
-            // If there's already an unquoted segment collected, add it as a separate token
             if (*word != '\0')
             {
-                add_token(&tokens, create_token(token_type, word));
+                add_token(&tokens, create_token(TOKEN_WORD, word));
                 word = ft_strdup("");
                 if (!word)
                 {
@@ -79,15 +91,29 @@ t_token *collect_word_token(const char *input, size_t *i)
                 }
             }
 
-            // Add the quoted token to the list
-            add_token(&tokens, quoted_token);
+            if (tokens && tokens->type == TOKEN_WORD)
+            {
+                char *temp = join_and_free(tokens->value, quoted_token->value);
+                if (!temp)
+                {
+                    free_tokens(tokens);
+                    return NULL;
+                }
+                tokens->value = temp;
+            }
+            else
+            {
+                add_token(&tokens, quoted_token);
+            }
         }
         else
         {
             size_t start = *i;
             while (input[*i] != '\0' && !isspace((unsigned char)input[*i]) &&
                    !is_operator_char(input[*i]) && input[*i] != '\'' && input[*i] != '"')
+            {
                 (*i)++;
+            }
 
             char *substr = ft_substr(input, start, *i - start);
             if (!substr)
@@ -106,7 +132,6 @@ t_token *collect_word_token(const char *input, size_t *i)
         }
     }
 
-    // If there's an unquoted segment left, add it as a separate token
     if (*word != '\0')
     {
         add_token(&tokens, create_token(TOKEN_WORD, word));
@@ -119,11 +144,10 @@ t_token *collect_word_token(const char *input, size_t *i)
     return tokens;
 }
 
-
 t_token *collect_quoted(const char *input, size_t *i, char quote_char)
 {
     t_token_type type;
-    (*i)++; // Skip the opening quote
+    (*i)++;
     size_t start = *i;
 
     while (input[*i] != '\0' && input[*i] != quote_char)
@@ -139,16 +163,12 @@ t_token *collect_quoted(const char *input, size_t *i, char quote_char)
     if (!quoted)
         return NULL;
 
-    (*i)++; // Skip the closing quote
+    (*i)++;
 
-    if (quote_char == '"')
-        type = TOKEN_DOUBLE_QUOTED;
-    else
-        type = TOKEN_SINGLE_QUOTED;
+    type = (quote_char == '"') ? TOKEN_WORD : TOKEN_SINGLE_QUOTED;
 
     return create_token(type, quoted);
 }
-
 
 t_token_type identify_operator(const char *input, size_t *i)
 {
@@ -177,20 +197,18 @@ t_token_type identify_operator(const char *input, size_t *i)
         }
         return TOKEN_REDIRECT_OUT;
     }
-    return TOKEN_EOF; // Should not reach here
+    return TOKEN_EOF;
 }
 
-t_token	*create_token(t_token_type type, char *value)
+t_token *create_token(t_token_type type, char *value)
 {
-    t_token	*token;
-
-    token = malloc(sizeof(t_token));
+    t_token *token = malloc(sizeof(t_token));
     if (!token)
-        return (NULL);
+        return NULL;
     token->type = type;
     token->value = value;
     token->next = NULL;
-    return (token);
+    return token;
 }
 
 void add_token(t_token **tokens, t_token *new_token)
