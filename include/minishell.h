@@ -102,7 +102,7 @@ int builtin_echo(char **args);
 int builtin_cd(char **args, t_shell *shell);
 int builtin_pwd();
 int builtin_unset(char **args);
-int builtin_env(void);
+int builtin_env(char **envp);
 int builtin_exit(char **args);
 int builtin_history(t_history *history);
 

@@ -232,7 +232,7 @@ int execute_builtin(t_command *command, t_shell *shell, t_history *history) {
     else if (ft_strcmp(command->args[0], "unset") == 0)
         return builtin_unset(command->args);
     else if (ft_strcmp(command->args[0], "env") == 0)
-        return builtin_env();
+        return builtin_env(shell->envp);
     else if (ft_strcmp(command->args[0], "exit") == 0)
         return builtin_exit(command->args);
     else if (ft_strcmp(command->args[0], "history") == 0)

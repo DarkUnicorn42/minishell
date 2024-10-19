@@ -83,10 +83,9 @@ int builtin_unset(char **args) {
     return (0);
 }
 
-int builtin_env(void) {
-    extern char **environ;
-    for (int i = 0; environ[i]; i++) {
-        printf("%s\n", environ[i]);
+int builtin_env(char **envp) {
+    for (int i = 0; envp[i]; i++) {
+        printf("%s\n", envp[i]);
     }
     return 0;
 }

@@ -39,6 +39,8 @@ int main(int argc, char **argv, char **envp) {
     history.count = 0;
     history.capacity = INITIAL_CAPACITY;
 
+    //builtin_env(envp);
+
     // printf("\e[38;5;113m***************************************************************\n");
 	// printf("\e[38;5;113m*  .-.   .-..-..-. .-..-.    .----..-. .-..----..-.   .-.     *\n");
 	// printf("\e[38;5;113m*  |  `.'  || ||  `| || |   { {__  | {_} || {_  | |   | |     *\n");
