@@ -32,7 +32,7 @@ t_command *parse_tokens(t_token *tokens) {
             // Add arguments based on their type
             add_argument(current_command, tokens->value, tokens->type);
         } else if (tokens->type == TOKEN_PIPE) {
-            printf("Parser: Found pipe -> Starting a new command\n");
+           // printf("Parser: Found pipe -> Starting a new command\n");
             current_command = NULL; // Start a new command after a pipe
         } else if (is_redirection(tokens->type)) {
             if (!current_command) {

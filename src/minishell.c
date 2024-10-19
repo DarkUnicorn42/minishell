@@ -85,7 +85,7 @@ int main(int argc, char **argv, char **envp) {
         // Call parser to parse tokens into commands
         commands = parse_tokens(tokens);
         if (!commands) {
-            printf("Parser error: Failed to parse tokens\n");
+            //printf("Parser error: Failed to parse tokens\n");
             free_tokens(tokens);
             free(input);
             continue;

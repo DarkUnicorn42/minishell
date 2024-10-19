@@ -15,70 +15,129 @@
 int execute_commands(t_command *commands, t_shell *shell, t_history *history) {
     t_command *current_command = commands;
     int pipe_fd[2];
-    int input_fd = STDIN_FILENO;
+    int input_fd = STDIN_FILENO; // Input FD for the current command, initially stdin
     pid_t pid;
     int status;
-    pid_t last_pid = -1; // To keep track of the last command's process ID
+    pid_t last_pid = -1;
 
     while (current_command) {
-        if (is_builtin(current_command->args[0])) {
-            shell->exit_code = execute_builtin(current_command, shell, history);
-        } else {
-            if (current_command->next) {
-                if (pipe(pipe_fd) == -1) {
-                    perror("pipe");
-                    shell->exit_code = 1;
-                    return 1;
-                }
-            }
-
-            pid = fork_process();
-            if (pid == -1) {
-                perror("fork");
+        // Create a pipe if there's a next command
+        if (current_command->next) {
+            if (pipe(pipe_fd) == -1) {
+                perror("pipe");
                 shell->exit_code = 1;
                 return 1;
             }
+        }
 
-            if (pid == 0) {
-                // Child process
-                if (input_fd != STDIN_FILENO) {
-                    dup2(input_fd, STDIN_FILENO);
-                    close(input_fd);
-                }
-                if (current_command->next) {
-                    close(pipe_fd[0]);
-                    dup2(pipe_fd[1], STDOUT_FILENO);
-                    close(pipe_fd[1]);
-                }
-                if (handle_redirections(current_command) == -1) {
+        pid = fork_process();
+        if (pid == -1) {
+            perror("fork");
+            shell->exit_code = 1;
+            return 1;
+        }
+
+        if (pid == 0) {
+            // Child process
+            // Set up input redirection from the previous command
+            if (input_fd != STDIN_FILENO) {
+                if (dup2(input_fd, STDIN_FILENO) == -1) {
+                    perror("dup2");
                     exit(1);
                 }
-                execvp(current_command->args[0], current_command->args);
-                perror("execvp");
+                close(input_fd);
+            }
+
+            // Set up output redirection to the next command
+            if (current_command->next) {
+                close(pipe_fd[0]);  // Close read end of the pipe in the child
+                if (dup2(pipe_fd[1], STDOUT_FILENO) == -1) {
+                    perror("dup2");
+                    exit(1);
+                }
+                close(pipe_fd[1]);
+            }
+
+            if (handle_redirections(current_command) == -1) {
+                perror("handle_redirections");
                 exit(1);
+            }
+
+            if (is_builtin(current_command->args[0])) {
+                // Execute built-in in the child process context
+                shell->exit_code = execute_builtin(current_command, shell, history);
+                exit(shell->exit_code);  // Exit after executing the built-in
             } else {
-                // Parent process
-                last_pid = pid; // Store the last child process ID
-                if (input_fd != STDIN_FILENO) {
-                    close(input_fd);
-                }
-                if (current_command->next) {
-                    close(pipe_fd[1]);
-                    input_fd = pipe_fd[0];
-                }
+                execvp(current_command->args[0], current_command->args);
+                perror("execvp failed");
+                exit(1);
+            }
+        } else {
+            // Parent process
+            last_pid = pid;
+
+            if (input_fd != STDIN_FILENO) {
+                close(input_fd);
+            }
+
+            // Update input_fd for the next command (read end of the pipe)
+            if (current_command->next) {
+                close(pipe_fd[1]);  // Close write end of the pipe in the parent
+                input_fd = pipe_fd[0];  // Update input_fd for the next command in the pipeline
             }
         }
+
         current_command = current_command->next;
     }
 
-    // Wait for all child processes and update the exit code
+    // Wait for all child processes and set the exit code
     while ((pid = wait(&status)) > 0) {
-        if (pid == last_pid && WIFEXITED(status)) {
-            shell->exit_code = WEXITSTATUS(status);
+        if (pid == last_pid) {
+            if (WIFEXITED(status)) {
+                shell->exit_code = WEXITSTATUS(status);
+            } else {
+                shell->exit_code = 1;  // Handle unexpected termination
+            }
         }
     }
 
     return 0;
+}
+
+int create_pipe(int pipe_fd[2]) {
+    if (pipe(pipe_fd) == -1) {
+        perror("pipe");
+        return -1;
+    }
+    return 0;
+}
+
+pid_t fork_process(void) {
+    pid_t pid = fork();
+    if (pid == -1) {
+        perror("fork");
+    }
+    return pid;
+}
+
+void handle_child(int input_fd, int pipe_fd[2], t_command *current_command, t_shell *shell) {
+    (void)shell;
+    
+    if (input_fd != STDIN_FILENO) {
+        dup2(input_fd, STDIN_FILENO);
+        close(input_fd);
+    }
+    if (current_command->next) {
+        close(pipe_fd[0]);
+        dup2(pipe_fd[1], STDOUT_FILENO);
+        close(pipe_fd[1]);
+    }
+    if (handle_redirections(current_command) == -1) {
+        exit(1);
+    }
+    execvp(current_command->args[0], current_command->args);
+    perror("execvp");
+    exit(1);
 }
 
 int handle_redirections(t_command *command) {
