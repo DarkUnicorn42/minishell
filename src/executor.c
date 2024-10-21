@@ -21,8 +21,10 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history) {
     pid_t last_pid = -1;
 
     while (current_command) {
+        
         // Create a pipe if there's a next command
         if (current_command->next) {
+
             if (pipe(pipe_fd) == -1) {
                 perror("pipe");
                 shell->exit_code = 1;
@@ -38,6 +40,7 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history) {
         }
 
         if (pid == 0) {
+            
             // Child process
             // Set up input redirection from the previous command
             if (input_fd != STDIN_FILENO) {
@@ -73,6 +76,7 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history) {
                 exit(1);
             }
         } else {
+
             // Parent process
             last_pid = pid;
 
@@ -88,6 +92,7 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history) {
         }
 
         current_command = current_command->next;
+
     }
 
     // Wait for all child processes and set the exit code

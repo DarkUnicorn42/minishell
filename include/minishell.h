@@ -22,6 +22,7 @@
 typedef struct s_shell {
     char **envp;
     int exit_code;
+    char *current_dir;  // Track current working directory
 } t_shell;
 
 typedef struct s_history {
