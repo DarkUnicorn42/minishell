@@ -38,26 +38,40 @@ int builtin_echo(char **args) {
 
 int builtin_cd(char **args, t_shell *shell) {
     char *path;
-    (void)shell;
+    char cwd[PATH_MAX];
+    
     // Handle 'cd' with no arguments (go to HOME)
-    if (!args[1])
-    {
-        path = getenv("HOME");
+    if (!args[1]) {
+        path = get_env_value("HOME", shell->envp);
         if (!path) {
             fprintf(stderr, "cd: HOME not set\n");
             return 1;
         }
-    }
-    else
+    } else {
         path = args[1];
+    }
 
-    if (chdir(path) == -1)
-    {
+    // Attempt to change the directory
+    if (chdir(path) == -1) {
         perror("cd failed");
         return 1;
     }
-    return (0);
+
+    // Update PWD in shell->envp
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        shell->envp = set_env_value("PWD", cwd, shell->envp);
+        if (!shell->envp) {
+            fprintf(stderr, "Error updating PWD\n");
+            return 1;
+        }
+    } else {
+        perror("getcwd failed");
+        return 1;
+    }
+
+    return 0;
 }
+
 
 int builtin_pwd(void) {
     char cwd[PATH_MAX];
@@ -71,22 +85,13 @@ int builtin_pwd(void) {
     }
 }
 
-int builtin_unset(char **args) {
+int builtin_unset(char **args, t_shell *shell) {
     if (!args[1]) {
-       // printf("unset: missing argument\n");
-        return 0;
+        return 0; // No argument provided
     }
-    if (unsetenv(args[1]) != 0) {
-        perror("unset");
-        return (0);
-    }
-    return (0);
-}
 
-int builtin_env(char **envp) {
-    for (int i = 0; envp[i]; i++) {
-        printf("%s\n", envp[i]);
-    }
+    shell->envp = unset_env_value(args[1], shell->envp);
+
     return 0;
 }
 

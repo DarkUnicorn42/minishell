@@ -1,10 +1,12 @@
+
 #include "../include/minishell.h"
 
-char	*expand_variable(const char *str, int *i)
+char	*expand_variable(const char *str, int *i, t_shell *shell)
 {
 	int		var_start;
 	char	*var_name;
 	char	*expansion;
+	char	*env_value;
 
 	var_start = *i + 1;
 	while (str[*i + 1] && (ft_isalnum(str[*i + 1]) || str[*i + 1] == '_'))
@@ -12,71 +14,83 @@ char	*expand_variable(const char *str, int *i)
 	var_name = ft_substr(str, var_start, *i + 1 - var_start);
 	if (!var_name)
 	{
-		perror("malloc");
+		ft_putstr_fd("Error: malloc failed in expand_variable\n", 2);
 		return (NULL);
 	}
-	expansion = getenv(var_name) ? getenv(var_name) : "";
+	env_value = get_env_value(var_name, shell->envp);
+	if (env_value)
+		expansion = ft_strdup(env_value);
+	else
+		expansion = ft_strdup("");
 	free(var_name);
 	(*i)++;
-	return (ft_strdup(expansion));
+	return (expansion);
 }
 
 char	*expand_exit_code(t_shell *shell, int *i)
 {
-	*i += 2;  // Skip "$?"
+	*i += 2;
 	return (ft_itoa(shell->exit_code));
 }
 
 char	*expand_variables(const char *str, t_shell *shell)
 {
-	char	*result = ft_strdup("");
-	char	*expansion;
-	int		i = 0;
+	char	*result;
+	int		i;
 
+	i = 0;
+	result = ft_strdup("");
 	if (!result)
 	{
-		perror("malloc");
+		ft_putstr_fd("Error: malloc failed in expand_variables\n", 2);
 		return (NULL);
 	}
-
 	while (str[i])
 	{
-		if (str[i] == '$')
-		{
-			if (str[i + 1] == '?')
-				expansion = expand_exit_code(shell, &i);
-			else if (ft_isalpha(str[i + 1]) || str[i + 1] == '_')
-				expansion = expand_variable(str, &i);
-			else
-			{
-				expansion = ft_strdup("$");
-				i++;
-			}
-		}
-		else
-		{
-			expansion = ft_substr(str, i, 1);
-			i++;
-		}
-
-		if (!expansion)
-		{
-			free(result);
+		result = append_expanded_token(result, str, &i, shell);
+		if (!result)
 			return (NULL);
-		}
-
-		char *temp = ft_strjoin(result, expansion);
-		free(result);
-		free(expansion);
-
-		if (!temp)
-		{
-			perror("malloc");
-			return (NULL);
-		}
-
-		result = temp;
 	}
-
 	return (result);
+}
+
+char	*append_expanded_token(char *result, const char *str, int *i, t_shell *shell)
+{
+	char	*expansion;
+	char	*temp;
+
+	if (str[*i] == '$')
+		expansion = get_expansion(str, i, shell);
+	else
+		expansion = ft_substr(str, (*i)++, 1);
+	if (!expansion)
+	{
+		free(result);
+		return (NULL);
+	}
+	temp = ft_strjoin(result, expansion);
+	free(result);
+	free(expansion);
+	if (!temp)
+	{
+		ft_putstr_fd("Error: malloc failed in append_expanded_token\n", 2);
+		return (NULL);
+	}
+	return (temp);
+}
+
+char	*get_expansion(const char *str, int *i, t_shell *shell)
+{
+	char	*expansion;
+
+	if (str[*i + 1] == '?')
+		expansion = expand_exit_code(shell, i);
+	else if (ft_isalpha(str[*i + 1]) || str[*i + 1] == '_')
+		expansion = expand_variable(str, i, shell);
+	else
+	{
+		expansion = ft_strdup("$");
+		(*i)++;
+	}
+	return (expansion);
 }

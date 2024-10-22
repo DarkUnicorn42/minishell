@@ -82,30 +82,49 @@ void free_commands(t_command *commands);
 
 // executor.c
 int execute_commands(t_command *commands, t_shell *shell, t_history *history);
-int handle_redirections(t_command *command);
-int is_builtin(char *command);
-int execute_builtin(t_command *command, t_shell *shell, t_history *history);
-char *expand_variables(const char *str, t_shell *shell);
+int	is_builtin_parent(char *cmd);
+int	is_builtin(char *cmd);
+int	execute_builtin(t_command *command, t_shell *shell, t_history *history);
+char	*expand_argument(char *arg, t_shell *shell);
+int	run_builtin_command(t_command *command, t_shell *shell, t_history *history);
+void	execute_external(t_command *command, t_shell *shell);
+char	*find_executable_path(char **paths, char *cmd);
+
 
 //expander.c
-char *expand_variable(const char *str, int *i);
+char *expand_variable(const char *str, int *i, t_shell *shell);
 char *expand_exit_code(t_shell *shell, int *i);
-char *append_char(char *result, char c);
 char *expand_variables(const char *str, t_shell *shell);
+char	*append_expanded_token(char *result, const char *str, int *i, t_shell *shell);
+char	*get_expansion(const char *str, int *i, t_shell *shell);
 
 //pipes.c
 int create_pipe(int pipe_fd[2]);
-pid_t fork_process(void);
-void handle_child(int input_fd, int pipe_fd[2], t_command *current_command, t_shell *shell);
+pid_t	fork_process(void);
+void	execute_child(t_command *cmd, t_shell *shell, t_history *history, int input_fd, int pipe_fd[2]);
+int	parent_process(int input_fd, int pipe_fd[2], t_command *cmd);
+void	wait_for_children(t_shell *shell);
+void	setup_child_io(t_command *cmd, int input_fd, int pipe_fd[2]);
+
+// redirections.c
+int	handle_redirections(t_command *command);
+int	open_file_for_redirection(t_redirection *redir);
+int	get_dup_fd(t_token_type type);
 
 // builtins.c
 int builtin_echo(char **args);
 int builtin_cd(char **args, t_shell *shell);
 int builtin_pwd();
-int builtin_unset(char **args);
-int builtin_env(char **envp);
+int builtin_unset(char **args, t_shell *shell);
 int builtin_exit(char **args);
 int builtin_history(t_history *history);
+// env.c
+int builtin_env(t_shell *shell);
+char *get_env_value(const char *name, char **envp);
+char	*construct_env_entry(const char *key, const char *value);
+char **set_env_value(const char *key, const char *value, char **envp);
+char	**add_env_entry(char **envp, const char *key, const char *value);
+char **unset_env_value(const char *key, char **envp);
 
 // export.c
 int expand_envp(t_shell *shell, char *new_var);
@@ -120,6 +139,8 @@ char *ft_strncat_char(char *str, char c);
 char *join_and_free(char *str1, const char *str2);
 void skip_whitespace(const char *input, size_t *i);
 int is_operator_char(char c);
+int	set_exit_code(t_shell *shell, int code);
+void	free_string_array(char **array);
 
 //signals.c
 void handle_sigquit(int sig);

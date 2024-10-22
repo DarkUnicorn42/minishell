@@ -2,8 +2,9 @@
 NAME = minishell
 
 SOURCES =	src/minishell.c src/utils.c src/lexer.c src/parser.c src/executor.c src/signals.c \
-			src/builtins/builtins.c src/builtins/export.c src/expander.c src/pipes.c \
-
+			src/builtins/builtins.c src/builtins/export.c src/builtins/env.c src/expander.c src/pipes.c \
+			src/redirections.c \
+			
 OBJECTS = $(SOURCES:.c=.o)
 
 GCC = gcc
