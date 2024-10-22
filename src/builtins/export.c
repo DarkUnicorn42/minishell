@@ -1,16 +1,14 @@
 
 #include "../../include/minishell.h"
 
-int expand_envp(t_shell *shell, char *new_var)
-{
-    int count;
+int expand_envp(t_shell *shell, char *new_var) {
+    int count = 0;
 
-    count = 0;
     while (shell->envp[count])
         count++;
+
     char **new_envp = malloc((count + 2) * sizeof(char *));
-    if (!new_envp)
-    {
+    if (!new_envp) {
         perror("malloc");
         return 1;
     }
@@ -61,7 +59,7 @@ int builtin_export(char **args, t_shell *shell) {
 
     while (args[i]) {
         equal_sign = ft_strchr(args[i], '=');
-        
+
         if (equal_sign) {
             size_t key_length = equal_sign - args[i];
             char *key = ft_substr(args[i], 0, key_length);
@@ -71,7 +69,7 @@ int builtin_export(char **args, t_shell *shell) {
             }
 
             if (!is_valid_identifier(key)) {
-                printf("export: `%s': not a valid identifier\n", key);
+                fprintf(stderr, "export: `%s': not a valid identifier\n", key);
                 free(key);
                 exit_code = 1;
             } else {
@@ -85,7 +83,7 @@ int builtin_export(char **args, t_shell *shell) {
             free(key);
         } else {
             if (!is_valid_identifier(args[i])) {
-                printf("export: `%s': not a valid identifier\n", args[i]);
+                fprintf(stderr, "export: `%s': not a valid identifier\n", args[i]);
                 exit_code = 1;
             } else {
                 if (update_envp(shell->envp, args[i], args[i]) == -1) {
