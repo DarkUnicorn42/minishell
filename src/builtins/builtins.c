@@ -39,8 +39,16 @@ int builtin_echo(char **args) {
 int builtin_cd(char **args, t_shell *shell) {
     char *path;
     char cwd[PATH_MAX];
-    
-    // Handle 'cd' with no arguments (go to HOME)
+    int	arg_count;
+
+	arg_count = 0;
+	while (args[arg_count])
+		arg_count++;
+	if (arg_count > 2)
+	{
+		ft_putstr_fd("cd: too many arguments\n", STDERR_FILENO);
+		return (1);
+	}
     if (!args[1]) {
         path = get_env_value("HOME", shell->envp);
         if (!path) {
