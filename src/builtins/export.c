@@ -45,13 +45,13 @@ int update_envp(char **envp, char *key, char *new_value)
             return 0;
         }
     }
-    return -1;  // Indicates that the key was not found, and we need to add a new variable.
+    return -1;
 }
 
-int builtin_export(char **args, t_shell *shell)
-{
+int builtin_export(char **args, t_shell *shell) {
     int i = 1;
     char *equal_sign;
+    int exit_code = 0;
 
     if (!args[1]) {
         for (int j = 0; shell->envp[j] != NULL; j++)
@@ -61,6 +61,7 @@ int builtin_export(char **args, t_shell *shell)
 
     while (args[i]) {
         equal_sign = ft_strchr(args[i], '=');
+        
         if (equal_sign) {
             size_t key_length = equal_sign - args[i];
             char *key = ft_substr(args[i], 0, key_length);
@@ -68,18 +69,34 @@ int builtin_export(char **args, t_shell *shell)
                 perror("malloc");
                 return 1;
             }
-            if (update_envp(shell->envp, key, args[i]) == -1) {
-                if (expand_envp(shell, args[i])) {
-                    free(key);
-                    return 1;
+
+            if (!is_valid_identifier(key)) {
+                printf("export: `%s': not a valid identifier\n", key);
+                free(key);
+                exit_code = 1;
+            } else {
+                if (update_envp(shell->envp, key, args[i]) == -1) {
+                    if (expand_envp(shell, args[i])) {
+                        free(key);
+                        return 1;
+                    }
                 }
             }
             free(key);
-        } 
-        else {
-            printf("export: `%s': not a valid identifier\n", args[i]);
+        } else {
+            if (!is_valid_identifier(args[i])) {
+                printf("export: `%s': not a valid identifier\n", args[i]);
+                exit_code = 1;
+            } else {
+                if (update_envp(shell->envp, args[i], args[i]) == -1) {
+                    if (expand_envp(shell, args[i])) {
+                        return 1;
+                    }
+                }
+            }
         }
         i++;
     }
-    return 0;
+
+    return exit_code;
 }

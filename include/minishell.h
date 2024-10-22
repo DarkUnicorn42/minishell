@@ -141,6 +141,7 @@ void skip_whitespace(const char *input, size_t *i);
 int is_operator_char(char c);
 int	set_exit_code(t_shell *shell, int code);
 void	free_string_array(char **array);
+int is_valid_identifier(const char *str);
 
 //signals.c
 void handle_sigquit(int sig);

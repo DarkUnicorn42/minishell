@@ -94,13 +94,20 @@ int builtin_pwd(void) {
 }
 
 int builtin_unset(char **args, t_shell *shell) {
-    if (!args[1]) {
-        return 0; // No argument provided
+    int i = 1;
+    int exit_code = 0;
+
+    while (args[i]) {
+        if (!is_valid_identifier(args[i])) {
+            fprintf(stderr, "unset: '%s': not a valid identifier\n", args[i]);
+            exit_code = 1;
+        } else {
+            shell->envp = unset_env_value(args[i], shell->envp);
+        }
+        i++;
     }
 
-    shell->envp = unset_env_value(args[1], shell->envp);
-
-    return 0;
+    return exit_code;
 }
 
 int builtin_exit(char **args) {
