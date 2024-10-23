@@ -117,20 +117,20 @@ void	free_string_array(char **array)
 	array = NULL;
 }
 
+int is_valid_identifier(const char *str)
+{
+    int i;
 
-int is_valid_identifier(const char *str) {
-    if (!str || !str[0])
-        return 0;
-
-    if (!isalpha(str[0]) && str[0] != '_')
-        return 0;
-
-    for (int i = 1; str[i]; i++) {
-        if (!isalnum(str[i]) && str[i] != '_')
-            return 0;
+    if (!str || !str[0] || (!ft_isalpha(str[0]) && str[0] != '_'))
+        return (0);
+    i = 1;
+    while (str[i] && str[i] != '=')
+    {
+        if (!ft_isalnum(str[i]) && str[i] != '_')
+            return (0);
+        i++;
     }
-
-    return 1;
+    return (1);
 }
 
 int	is_numeric(const char *str)

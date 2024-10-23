@@ -70,7 +70,7 @@ int builtin_export(char **args, t_shell *shell) {
 
             if (!is_valid_identifier(key)) {
                 fprintf(stderr, "export: `%s': not a valid identifier\n", key);
-                free(key);
+                //free(key);
                 exit_code = 1;
             } else {
                 if (update_envp(shell->envp, key, args[i]) == -1) {
