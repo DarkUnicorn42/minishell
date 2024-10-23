@@ -36,7 +36,7 @@ t_command *parse_tokens(t_token *tokens) {
                 return NULL;
             }
             if (!current_command) {
-                printf("Error: Redirection without command\n");
+               // printf("Error: Redirection without command\n");
                 free_commands(commands);
                 return NULL;
             }
@@ -46,7 +46,6 @@ t_command *parse_tokens(t_token *tokens) {
     }
     return commands;
 }
-
 
 t_command *create_command() {
     t_command *cmd = malloc(sizeof(t_command));

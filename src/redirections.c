@@ -1,24 +1,32 @@
 
 #include "../include/minishell.h"
 
-
-int	handle_redirections(t_command *command)
+int handle_redirections(t_command *command)
 {
-	t_redirection	*redir;
-	int				fd;
+    t_redirection *redir;
+    int fd;
 
-	redir = command->redirections;
-	while (redir)
-	{
-		fd = open_file_for_redirection(redir);
-		if (fd == -1)
-			return (-1);
-		dup2(fd, get_dup_fd(redir->type));
-		close(fd);
-		redir = redir->next;
-	}
-	return (0);
+    redir = command->redirections;
+    while (redir)
+    {
+        fd = open_file_for_redirection(redir);
+        if (fd == -1)
+        {
+            // Error message already printed in open_file_for_redirection
+            return (-1);
+        }
+        if (dup2(fd, get_dup_fd(redir->type)) == -1)
+        {
+            ft_putstr_fd("minishell: dup2 error\n", STDERR_FILENO);
+            close(fd);
+            return (-1);
+        }
+        close(fd);
+        redir = redir->next;
+    }
+    return (0);
 }
+
 
 int	get_dup_fd(t_token_type type)
 {
@@ -31,7 +39,6 @@ int open_file_for_redirection(t_redirection *redir)
 {
     int fd;
 
-    errno = 0; // Reset errno before calling open
     if (redir->type == TOKEN_REDIRECT_IN)
         fd = open(redir->file, O_RDONLY);
     else if (redir->type == TOKEN_REDIRECT_OUT)
@@ -53,6 +60,7 @@ int open_file_for_redirection(t_redirection *redir)
     }
     return (fd);
 }
+
 
 int	handle_heredoc(char *delimiter)
 {

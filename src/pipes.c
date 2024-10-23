@@ -24,12 +24,12 @@ pid_t	fork_process(void)
 
 void	execute_child(t_command *cmd, t_shell *shell, t_history *history, int input_fd, int pipe_fd[2])
 {
-	setup_child_io(cmd, input_fd, pipe_fd);
 	if (handle_redirections(cmd) == -1)
 	{
 		//ft_putstr_fd("Error: redirection failed\n", STDERR_FILENO);
 		exit(1);
 	}
+	setup_child_io(cmd, input_fd, pipe_fd);
 	if (is_builtin(cmd->args[0]))
 	{
 		shell->exit_code = execute_builtin(cmd, shell, history);
@@ -51,19 +51,25 @@ int	parent_process(int input_fd, int pipe_fd[2], t_command *cmd)
 	return (STDIN_FILENO);
 }
 
-void	wait_for_children(t_shell *shell)
+void wait_for_children(t_shell *shell, pid_t last_pid)
 {
-	int		status;
-	pid_t	pid;
+    int status;
+    pid_t pid;
 
-	while ((pid = wait(&status)) > 0)
-	{
-		if ((status & 0x7F) == 0)
-			shell->exit_code = (status >> 8) & 0xFF;
-		else
-			shell->exit_code = 1;
-	}
+    while ((pid = wait(&status)) > 0)
+    {
+        if (pid == last_pid)
+        {
+            if (WIFEXITED(status))
+                shell->exit_code = WEXITSTATUS(status);
+            else if (WIFSIGNALED(status))
+                shell->exit_code = 128 + WTERMSIG(status);
+            else
+                shell->exit_code = 1; // Default exit code
+        }
+    }
 }
+
 
 void	setup_child_io(t_command *cmd, int input_fd, int pipe_fd[2])
 {

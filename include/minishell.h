@@ -103,7 +103,7 @@ int create_pipe(int pipe_fd[2]);
 pid_t	fork_process(void);
 void	execute_child(t_command *cmd, t_shell *shell, t_history *history, int input_fd, int pipe_fd[2]);
 int	parent_process(int input_fd, int pipe_fd[2], t_command *cmd);
-void	wait_for_children(t_shell *shell);
+void	wait_for_children(t_shell *shell, pid_t last_pid);
 void	setup_child_io(t_command *cmd, int input_fd, int pipe_fd[2]);
 
 // redirections.c

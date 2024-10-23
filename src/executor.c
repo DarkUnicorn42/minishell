@@ -12,35 +12,50 @@
 
 #include "../include/minishell.h"
 
-int	execute_commands(t_command *commands, t_shell *shell, t_history *history)
+int execute_commands(t_command *commands, t_shell *shell, t_history *history)
 {
-	t_command	*cmd;
-	int			input_fd;
-	pid_t		pid;
-	int			pipe_fd[2];
+    t_command *cmd;
+    int input_fd;
+    pid_t pid;
+    int pipe_fd[2];
+    pid_t last_pid = -1; // Variable to store the PID of the last child
 
-	cmd = commands;
-	input_fd = STDIN_FILENO;
-	while (cmd)
-	{
-		if (is_builtin_parent(cmd->args[0]) && !cmd->next)
-			shell->exit_code = execute_builtin(cmd, shell, history);
-		else
-		{
-			if (cmd->next && create_pipe(pipe_fd) == -1)
-				return (set_exit_code(shell, 1));
-			pid = fork_process();
-			if (pid == -1)
-				return (set_exit_code(shell, 1));
-			if (pid == 0)
-				execute_child(cmd, shell, history, input_fd, pipe_fd);
-			else
-				input_fd = parent_process(input_fd, pipe_fd, cmd);
-		}
-		cmd = cmd->next;
-	}
-	wait_for_children(shell);
-	return (0);
+    cmd = commands;
+    input_fd = STDIN_FILENO;
+    while (cmd)
+    {
+        if (is_builtin_parent(cmd->args[0]) && !cmd->next)
+            shell->exit_code = execute_builtin(cmd, shell, history);
+        else
+        {
+            if (cmd->next && create_pipe(pipe_fd) == -1)
+                return (set_exit_code(shell, 1));
+            pid = fork_process();
+            if (pid == -1)
+                return (set_exit_code(shell, 1));
+            if (pid == 0)
+                execute_child(cmd, shell, history, input_fd, pipe_fd);
+            else
+            {
+                if (input_fd != STDIN_FILENO)
+                    close(input_fd);
+                if (cmd->next)
+                {
+                    close(pipe_fd[1]);
+                    input_fd = pipe_fd[0];
+                }
+                else
+                {
+                    close(pipe_fd[0]);
+                    close(pipe_fd[1]);
+                }
+                last_pid = pid; // Store the PID of the last child process
+            }
+        }
+        cmd = cmd->next;
+    }
+    wait_for_children(shell, last_pid); // Pass last_pid to wait_for_children
+    return (0);
 }
 
 int	is_builtin_parent(char *cmd)
@@ -137,4 +152,3 @@ char	*find_executable_path(char **paths, char *cmd)
 	}
 	return (NULL);
 }
-
