@@ -11,7 +11,7 @@ GCC = gcc
 
 CFLAGS = -Wall -Werror -Wextra -Iincludes -fPIE
 
-PIPEX = cd include && cd pipex && make
+LIBFT = cd include && cd libft && make
 
 LIB = include/libft/libft.a
 
@@ -23,7 +23,7 @@ all: $(NAME)
 $(NAME): comp_begin minishell
 
 comp_begin:
-	@$(PIPEX)
+	@$(LIBFT)
 
 minishell: $(OBJECTS)
 	$(GCC) $(CFLAGS) $(OBJECTS) $(LIB) $(READLINE) -o $(NAME)
@@ -33,11 +33,11 @@ minishell: $(OBJECTS)
 
 clean:
 	@rm -rf $(OBJECTS)
-	@cd include && cd pipex && make clean
+	@cd include && cd libft && make clean
 
 fclean: clean
 	@rm -rf $(NAME)
-	@cd include && cd pipex && make fclean
+	@cd include && cd libft && make fclean
 
 re: fclean all
 

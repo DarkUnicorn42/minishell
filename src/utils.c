@@ -35,6 +35,7 @@ void	free_tokens(t_token *tokens)
 		if (temp->value)
 			free(temp->value);
 		free(temp);
+		temp = NULL;
 	}
 }
 
@@ -109,10 +110,13 @@ void	free_string_array(char **array)
 	while (array[i])
 	{
 		free(array[i]);
+		array[i] = NULL;
 		i++;
 	}
 	free(array);
+	array = NULL;
 }
+
 
 int is_valid_identifier(const char *str) {
     if (!str || !str[0])

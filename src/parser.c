@@ -145,34 +145,41 @@ int is_redirection(t_token_type type) {
             type == TOKEN_HEREDOC || type == TOKEN_APPEND);
 }
 
-void free_commands(t_command *commands) {
-    t_command *temp_cmd;
-    t_redirection *temp_redir;
-    t_redirection *redir;
+void	free_commands(t_command *commands)
+{
+	t_command	*temp;
+	int			i;
 
-    while (commands) {
-        // Free each argument in the args array
-        if (commands->args) {
-            for (int i = 0; commands->args[i] != NULL; i++) {
-                free(commands->args[i]);
-            }
-            free(commands->args);
-        }
-
-        // Free redirections linked list
-        redir = commands->redirections;
-        while (redir) {
-            temp_redir = redir;
-            redir = redir->next;
-            if (temp_redir->file) {
-                free(temp_redir->file);
-            }
-            free(temp_redir);
-        }
-
-        // Move to the next command
-        temp_cmd = commands;
-        commands = commands->next;
-        free(temp_cmd);
-    }
+	while (commands)
+	{
+		temp = commands;
+		commands = commands->next;
+		if (temp->args)
+		{
+			i = 0;
+			while (temp->args[i])
+			{
+				free(temp->args[i]);
+				temp->args[i] = NULL;
+				i++;
+			}
+			free(temp->args);
+			temp->args = NULL;
+		}
+		if (temp->redirections)
+		{
+			t_redirection *redir = temp->redirections;
+			t_redirection *next_redir;
+			while (redir)
+			{
+				next_redir = redir->next;
+				if (redir->file)
+					free(redir->file);
+				free(redir);
+				redir = next_redir;
+			}
+		}
+		free(temp);
+		temp = NULL;
+	}
 }

@@ -106,5 +106,6 @@ char	*expand_argument(char *arg, t_shell *shell)
 		return (arg);
 	}
 	free(arg);
+	arg = NULL;
 	return (expanded_arg);
 }
