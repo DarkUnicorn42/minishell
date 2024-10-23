@@ -128,3 +128,19 @@ int is_valid_identifier(const char *str) {
 
     return 1;
 }
+
+int	is_numeric(const char *str)
+{
+	int	i;
+
+	i = 0;
+	if (str[0] == '-' || str[0] == '+')
+		i++;
+	while (str[i])
+	{
+		if (!ft_isdigit(str[i]))
+			return (0);
+		i++;
+	}
+	return (1);
+}

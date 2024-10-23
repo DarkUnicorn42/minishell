@@ -116,8 +116,9 @@ int builtin_echo(char **args);
 int builtin_cd(char **args, t_shell *shell);
 int builtin_pwd();
 int builtin_unset(char **args, t_shell *shell);
-int builtin_exit(char **args);
+int	builtin_exit(char **args, t_shell *shell);
 int builtin_history(t_history *history);
+
 // env.c
 int builtin_env(t_shell *shell);
 char *get_env_value(const char *name, char **envp);
@@ -142,6 +143,7 @@ int is_operator_char(char c);
 int	set_exit_code(t_shell *shell, int code);
 void	free_string_array(char **array);
 int is_valid_identifier(const char *str);
+int	is_numeric(const char *str);
 
 //signals.c
 void handle_sigquit(int sig);
