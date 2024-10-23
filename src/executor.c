@@ -110,28 +110,27 @@ int	run_builtin_command(t_command *command, t_shell *shell, t_history *history)
 	return (0);
 }
 
-void execute_external(t_command *cmd, t_shell *shell) {
-    if (cmd->args[0] == NULL || strcmp(cmd->args[0], "") == 0) {
-        shell->exit_code = 0;
-        return;
-    }
+void	execute_external(t_command *command, t_shell *shell)
+{
+	char	*path_env;
+	char	**paths;
+	char	*full_path;
 
-    struct stat st;
-    if (stat(cmd->args[0], &st) == 0 && S_ISDIR(st.st_mode)) {
-        ft_putstr_fd("minishell: ", STDERR_FILENO);
-        ft_putstr_fd(cmd->args[0], STDERR_FILENO);
-        ft_putstr_fd(": Is a directory\n", STDERR_FILENO);
-        shell->exit_code = 126;
-        return;
-    }
-
-    if (access(cmd->args[0], X_OK) == -1) {
-        ft_putstr_fd("minishell: ", STDERR_FILENO);
-        ft_putstr_fd(cmd->args[0], STDERR_FILENO);
-        ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
-        shell->exit_code = 126;
-        return;
-    }
+	path_env = get_env_value("PATH", shell->envp);
+	paths = ft_split(path_env, ':');
+	full_path = find_executable_path(paths, command->args[0]);
+	if (!full_path)
+	{
+		ft_putstr_fd(command->args[0], STDERR_FILENO);
+		ft_putstr_fd(": command not found\n", STDERR_FILENO);
+		free_string_array(paths);
+		exit(127);
+	}
+	execve(full_path, command->args, shell->envp);
+	ft_putstr_fd("Error: execve failed\n", STDERR_FILENO);
+	free(full_path);
+	free_string_array(paths);
+	exit(1);
 }
 
 char	*find_executable_path(char **paths, char *cmd)
