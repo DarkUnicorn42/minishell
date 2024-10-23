@@ -94,3 +94,17 @@ char	*get_expansion(const char *str, int *i, t_shell *shell)
 	}
 	return (expansion);
 }
+
+char	*expand_argument(char *arg, t_shell *shell)
+{
+	char	*expanded_arg;
+
+	expanded_arg = expand_variables(arg, shell);
+	if (!expanded_arg)
+	{
+		ft_putstr_fd("Error: malloc failed in expand_argument\n", STDERR_FILENO);
+		return (arg);
+	}
+	free(arg);
+	return (expanded_arg);
+}

@@ -85,7 +85,6 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history);
 int	is_builtin_parent(char *cmd);
 int	is_builtin(char *cmd);
 int	execute_builtin(t_command *command, t_shell *shell, t_history *history);
-char	*expand_argument(char *arg, t_shell *shell);
 int	run_builtin_command(t_command *command, t_shell *shell, t_history *history);
 void	execute_external(t_command *command, t_shell *shell);
 char	*find_executable_path(char **paths, char *cmd);
@@ -97,6 +96,7 @@ char *expand_exit_code(t_shell *shell, int *i);
 char *expand_variables(const char *str, t_shell *shell);
 char	*append_expanded_token(char *result, const char *str, int *i, t_shell *shell);
 char	*get_expansion(const char *str, int *i, t_shell *shell);
+char	*expand_argument(char *arg, t_shell *shell);
 
 //pipes.c
 int create_pipe(int pipe_fd[2]);
@@ -110,6 +110,7 @@ void	setup_child_io(t_command *cmd, int input_fd, int pipe_fd[2]);
 int	handle_redirections(t_command *command);
 int	open_file_for_redirection(t_redirection *redir);
 int	get_dup_fd(t_token_type type);
+int	handle_heredoc(char *delimiter);
 
 // builtins.c
 int builtin_echo(char **args);

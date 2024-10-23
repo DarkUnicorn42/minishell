@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include <limits.h>
 
+#define BUFFER_SIZE 40
+
 int		ft_atoi(const char *nptr);
 int		ft_isalpha(int c);
 int		ft_isdigit(int c);
@@ -54,3 +56,4 @@ size_t	ft_strlen(const char *str);
 size_t	ft_strlcpy(char *dst, const char *src, size_t size);
 size_t	ft_strlcat(char *dst, const char *src, size_t size);
 size_t	ft_strlcpy(char *dst, const char *src, size_t size);
+char	*get_next_line(int fd);

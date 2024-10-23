@@ -37,12 +37,43 @@ int	open_file_for_redirection(t_redirection *redir)
 		fd = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	else if (redir->type == TOKEN_APPEND)
 		fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	else if (redir->type == TOKEN_HEREDOC)
+		fd = handle_heredoc(redir->file);
 	else
-		return (-1); // Handle TOKEN_HEREDOC if implemented
+		return (-1);
 	if (fd == -1)
 	{
 		ft_putstr_fd("Error: failed to open file\n", STDERR_FILENO);
 		return (-1);
 	}
 	return (fd);
+}
+
+int	handle_heredoc(char *delimiter)
+{
+	int		pipe_fd[2];
+	char	*line;
+
+	if (pipe(pipe_fd) == -1)
+	{
+		ft_putstr_fd("Error: pipe failed\n", STDERR_FILENO);
+		return (-1);
+	}
+	while (1)
+	{
+		ft_putstr_fd("> ", STDOUT_FILENO);
+		line = get_next_line(STDIN_FILENO);
+		if (!line)
+			break;
+		if (ft_strncmp(line, delimiter, ft_strlen(delimiter)) == 0 &&
+			line[ft_strlen(delimiter)] == '\n')
+		{
+			free(line);
+			break;
+		}
+		ft_putstr_fd(line, pipe_fd[1]);
+		free(line);
+	}
+	close(pipe_fd[1]); // Close the write end of the pipe
+	return (pipe_fd[0]); // Return the read end of the pipe
 }

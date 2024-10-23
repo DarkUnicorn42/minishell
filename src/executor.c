@@ -74,20 +74,6 @@ int	execute_builtin(t_command *command, t_shell *shell, t_history *history)
 	return (run_builtin_command(command, shell, history));
 }
 
-char	*expand_argument(char *arg, t_shell *shell)
-{
-	char	*expanded_arg;
-
-	expanded_arg = expand_variables(arg, shell);
-	if (!expanded_arg)
-	{
-		ft_putstr_fd("Error: malloc failed in expand_argument\n", STDERR_FILENO);
-		return (arg);
-	}
-	free(arg);
-	return (expanded_arg);
-}
-
 int	run_builtin_command(t_command *command, t_shell *shell, t_history *history)
 {
 	if (ft_strcmp(command->args[0], "echo") == 0)
