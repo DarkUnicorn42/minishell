@@ -22,7 +22,7 @@ int	handle_redirections(t_command *command)
 
 int	get_dup_fd(t_token_type type)
 {
-	if (type == TOKEN_REDIRECT_IN)
+	if (type == TOKEN_REDIRECT_IN || type == TOKEN_HEREDOC)
 		return (STDIN_FILENO);
 	return (STDOUT_FILENO);
 }
