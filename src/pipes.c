@@ -27,7 +27,7 @@ void	execute_child(t_command *cmd, t_shell *shell, t_history *history, int input
 	setup_child_io(cmd, input_fd, pipe_fd);
 	if (handle_redirections(cmd) == -1)
 	{
-		ft_putstr_fd("Error: redirection failed\n", STDERR_FILENO);
+		//ft_putstr_fd("Error: redirection failed\n", STDERR_FILENO);
 		exit(1);
 	}
 	if (is_builtin(cmd->args[0]))

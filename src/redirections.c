@@ -27,26 +27,31 @@ int	get_dup_fd(t_token_type type)
 	return (STDOUT_FILENO);
 }
 
-int	open_file_for_redirection(t_redirection *redir)
+int open_file_for_redirection(t_redirection *redir)
 {
-	int	fd;
+    int fd;
 
-	if (redir->type == TOKEN_REDIRECT_IN)
-		fd = open(redir->file, O_RDONLY);
-	else if (redir->type == TOKEN_REDIRECT_OUT)
-		fd = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	else if (redir->type == TOKEN_APPEND)
-		fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
-	else if (redir->type == TOKEN_HEREDOC)
-		fd = handle_heredoc(redir->file);
-	else
-		return (-1);
-	if (fd == -1)
-	{
-		ft_putstr_fd("Error: failed to open file\n", STDERR_FILENO);
-		return (-1);
-	}
-	return (fd);
+    errno = 0; // Reset errno before calling open
+    if (redir->type == TOKEN_REDIRECT_IN)
+        fd = open(redir->file, O_RDONLY);
+    else if (redir->type == TOKEN_REDIRECT_OUT)
+        fd = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    else if (redir->type == TOKEN_APPEND)
+        fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    else if (redir->type == TOKEN_HEREDOC)
+        fd = handle_heredoc(redir->file);
+    else
+        return (-1);
+    if (fd == -1)
+    {
+        ft_putstr_fd("minishell: ", STDERR_FILENO);
+        ft_putstr_fd(redir->file, STDERR_FILENO);
+        ft_putstr_fd(": ", STDERR_FILENO);
+        ft_putstr_fd(strerror(errno), STDERR_FILENO);
+        ft_putstr_fd("\n", STDERR_FILENO);
+        return (-1);
+    }
+    return (fd);
 }
 
 int	handle_heredoc(char *delimiter)
