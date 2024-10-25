@@ -1,4 +1,4 @@
-
+//redirections.c
 #include "../include/minishell.h"
 
 int handle_redirections(t_command *command)

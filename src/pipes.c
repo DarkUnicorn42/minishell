@@ -1,4 +1,5 @@
 
+//pipes.c
 
 #include "../include/minishell.h"
 
@@ -69,7 +70,6 @@ void wait_for_children(t_shell *shell, pid_t last_pid)
         }
     }
 }
-
 
 void	setup_child_io(t_command *cmd, int input_fd, int pipe_fd[2])
 {

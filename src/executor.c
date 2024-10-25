@@ -15,13 +15,11 @@
 int execute_commands(t_command *commands, t_shell *shell, t_history *history)
 {
     t_command *cmd;
-    int input_fd;
-    pid_t pid;
+    int input_fd = STDIN_FILENO;
+    pid_t last_pid = -1;
     int pipe_fd[2];
-    pid_t last_pid = -1; // Variable to store the PID of the last child
 
     cmd = commands;
-    input_fd = STDIN_FILENO;
     while (cmd)
     {
         if (is_builtin_parent(cmd->args[0]) && !cmd->next)
@@ -30,33 +28,40 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history)
         {
             if (cmd->next && create_pipe(pipe_fd) == -1)
                 return (set_exit_code(shell, 1));
-            pid = fork_process();
+
+            pid_t pid = fork_process();
             if (pid == -1)
                 return (set_exit_code(shell, 1));
-            if (pid == 0)
-                execute_child(cmd, shell, history, input_fd, pipe_fd);
-            else
+
+            if (pid == 0)  // Child 
+            {
+                setup_child_io(cmd, input_fd, pipe_fd);
+                if (handle_redirections(cmd) == -1)
+                    exit(1);
+                if (is_builtin(cmd->args[0]))
+                    shell->exit_code = execute_builtin(cmd, shell, history);
+                else
+                    execute_external(cmd, shell);
+                exit(shell->exit_code);
+            }
+            else  // Parent 
             {
                 if (input_fd != STDIN_FILENO)
-                    close(input_fd);
+                    close(input_fd); // Close previous input
                 if (cmd->next)
                 {
-                    close(pipe_fd[1]);
-                    input_fd = pipe_fd[0];
+                    close(pipe_fd[1]); // Close unused write end
+                    input_fd = pipe_fd[0]; // Set read end for next command
                 }
-                else
-                {
-                    close(pipe_fd[0]);
-                    close(pipe_fd[1]);
-                }
-                last_pid = pid; // Store the PID of the last child process
+                last_pid = pid;
             }
         }
         cmd = cmd->next;
     }
-    wait_for_children(shell, last_pid); // Pass last_pid to wait_for_children
-    return (0);
+    wait_for_children(shell, last_pid);
+    return 0;
 }
+
 
 int	is_builtin_parent(char *cmd)
 {
@@ -147,6 +152,13 @@ char	*find_executable_path(char **paths, char *cmd)
 		free(temp_path);
 		if (access(full_path, X_OK) == 0)
 			return (full_path);
+		else if (access(full_path, F_OK) == 0)
+		{
+			ft_putstr_fd(cmd, STDERR_FILENO);
+			ft_putstr_fd(": permission denied\n", STDERR_FILENO);
+			free(full_path);
+			return (NULL);
+		}
 		free(full_path);
 		i++;
 	}
