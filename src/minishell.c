@@ -79,7 +79,7 @@ int main(int argc, char **argv, char **envp) {
         // Call lexer to tokenize the input
         tokens = lexer(input);
         if (!tokens) {
-            printf("Lexer error: Failed to tokenize input\n");
+            //printf("Lexer error: Failed to tokenize input\n");
             free(input);
             continue;
         }

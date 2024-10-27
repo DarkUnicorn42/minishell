@@ -116,27 +116,64 @@ int	run_builtin_command(t_command *command, t_shell *shell, t_history *history)
 	return (0);
 }
 
-void	execute_external(t_command *command, t_shell *shell)
+void execute_external(t_command *command, t_shell *shell)
 {
-	char	*path_env;
-	char	**paths;
-	char	*full_path;
+    char *full_path;
 
-	path_env = get_env_value("PATH", shell->envp);
-	paths = ft_split(path_env, ':');
-	full_path = find_executable_path(paths, command->args[0]);
-	if (!full_path)
-	{
-		ft_putstr_fd(command->args[0], STDERR_FILENO);
-		ft_putstr_fd(": command not found\n", STDERR_FILENO);
-		free_string_array(paths);
-		exit(127);
-	}
-	execve(full_path, command->args, shell->envp);
-	ft_putstr_fd("Error: execve failed\n", STDERR_FILENO);
-	free(full_path);
-	free_string_array(paths);
-	exit(1);
+    if (ft_strchr(command->args[0], '/'))
+    {
+        // Command contains '/', attempt to execute it directly
+        full_path = ft_strdup(command->args[0]);
+        if (!full_path)
+        {
+            ft_putstr_fd("minishell: memory allocation error\n", STDERR_FILENO);
+            exit(1);
+        }
+        if (access(full_path, F_OK) != 0)
+        {
+            ft_putstr_fd("minishell: ", STDERR_FILENO);
+            ft_putstr_fd(full_path, STDERR_FILENO);
+            ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
+            free(full_path);
+            exit(127);
+        }
+        else if (access(full_path, X_OK) != 0)
+        {
+            ft_putstr_fd("minishell: ", STDERR_FILENO);
+            ft_putstr_fd(full_path, STDERR_FILENO);
+            ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
+            free(full_path);
+            exit(126);
+        }
+    }
+    else
+    {
+        // Command does not contain '/', search in PATH
+        char *path_env = get_env_value("PATH", shell->envp);
+        char **paths = ft_split(path_env, ':');
+        full_path = find_executable_path(paths, command->args[0]);
+        free_string_array(paths);
+        if (!full_path)
+        {
+            ft_putstr_fd(command->args[0], STDERR_FILENO);
+            ft_putstr_fd(": command not found\n", STDERR_FILENO);
+            exit(127);
+        }
+    }
+
+    // Attempt to execute the command
+    execve(full_path, command->args, shell->envp);
+
+    // If execve returns, an error occurred
+    ft_putstr_fd("minishell: ", STDERR_FILENO);
+    ft_putstr_fd(full_path, STDERR_FILENO);
+    ft_putstr_fd(": ", STDERR_FILENO);
+    ft_putstr_fd(strerror(errno), STDERR_FILENO);
+    ft_putstr_fd("\n", STDERR_FILENO);
+
+    free(full_path);
+
+    exit(1);
 }
 
 char	*find_executable_path(char **paths, char *cmd)
