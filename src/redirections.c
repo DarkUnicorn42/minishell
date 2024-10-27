@@ -12,7 +12,11 @@ int handle_redirections(t_command *command)
         fd = open_file_for_redirection(redir);
         if (fd == -1)
         {
-            // Error message already printed in open_file_for_redirection
+            ft_putstr_fd("minishell: ", STDERR_FILENO);
+            ft_putstr_fd(redir->file, STDERR_FILENO);
+            ft_putstr_fd(": ", STDERR_FILENO);
+            ft_putstr_fd(strerror(errno), STDERR_FILENO);
+            ft_putstr_fd("\n", STDERR_FILENO);
             return (-1);
         }
         if (dup2(fd, get_dup_fd(redir->type)) == -1)
@@ -51,11 +55,6 @@ int open_file_for_redirection(t_redirection *redir)
         return (-1);
     if (fd == -1)
     {
-        ft_putstr_fd("minishell: ", STDERR_FILENO);
-        ft_putstr_fd(redir->file, STDERR_FILENO);
-        ft_putstr_fd(": ", STDERR_FILENO);
-        ft_putstr_fd(strerror(errno), STDERR_FILENO);
-        ft_putstr_fd("\n", STDERR_FILENO);
         return (-1);
     }
     return (fd);

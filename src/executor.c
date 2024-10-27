@@ -37,7 +37,9 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history)
             {
                 setup_child_io(cmd, input_fd, pipe_fd);
                 if (handle_redirections(cmd) == -1)
+				{
                     exit(1);
+				}
                 if (is_builtin(cmd->args[0]))
                     shell->exit_code = execute_builtin(cmd, shell, history);
                 else
@@ -79,20 +81,19 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-int	execute_builtin(t_command *command, t_shell *shell, t_history *history)
+int execute_builtin(t_command *command, t_shell *shell, t_history *history)
 {
-	int	i;
+    int i = 0;
 
-	i = 0;
-	while (command->args[i])
-	{
-		if (command->arg_types[i] == TOKEN_DOUBLE_QUOTED ||
-			command->arg_types[i] == TOKEN_WORD)
-			command->args[i] = expand_argument(command->args[i], shell);
-		i++;
-	}
-	return (run_builtin_command(command, shell, history));
+    while (command->args[i])
+    {
+        if (command->arg_types[i] != TOKEN_SINGLE_QUOTED)
+            command->args[i] = expand_argument(command->args[i], shell);
+        i++;
+    }
+    return run_builtin_command(command, shell, history);
 }
+
 
 int	run_builtin_command(t_command *command, t_shell *shell, t_history *history)
 {

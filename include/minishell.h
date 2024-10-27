@@ -65,9 +65,15 @@ typedef struct s_command {
 
 //lexer.c
 t_token *lexer(const char *input);
+void handle_operator(const char *input, size_t *i, t_token **tokens);
+int handle_word(const char *input, size_t *i, t_token **tokens);
+int handle_quotes(const char *input, size_t *i, char **word, int *quote_type);
+//t_token	*collect_quoted(const char *input, size_t *i, char quote_char);
+char *collect_quoted(const char *input, size_t *i, char quote_char);
+
+int	handle_unquoted(const char *input, size_t *i, char **word);
+t_token_type	identify_operator(const char *input, size_t *i);
 t_token *collect_word_token(const char *input, size_t *i);
-t_token_type identify_operator(const char *input, size_t *i);
-t_token *collect_quoted(const char *input, size_t *i, char quote);
 t_token *create_token(t_token_type type, char *value);
 void add_token(t_token **tokens, t_token *new_token);
 

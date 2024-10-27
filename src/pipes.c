@@ -23,22 +23,22 @@ pid_t	fork_process(void)
 	return (pid);
 }
 
-void	execute_child(t_command *cmd, t_shell *shell, t_history *history, int input_fd, int pipe_fd[2])
-{
-	if (handle_redirections(cmd) == -1)
-	{
-		//ft_putstr_fd("Error: redirection failed\n", STDERR_FILENO);
-		exit(1);
-	}
-	setup_child_io(cmd, input_fd, pipe_fd);
-	if (is_builtin(cmd->args[0]))
-	{
-		shell->exit_code = execute_builtin(cmd, shell, history);
-		exit(shell->exit_code);
-	}
-	else
-		execute_external(cmd, shell);
-}
+// void	execute_child(t_command *cmd, t_shell *shell, t_history *history, int input_fd, int pipe_fd[2])
+// {
+// 	if (handle_redirections(cmd) == -1)
+// 	{
+// 		//ft_putstr_fd("Error: redirection failed\n", STDERR_FILENO);
+// 		exit(1);
+// 	}
+// 	setup_child_io(cmd, input_fd, pipe_fd);
+// 	if (is_builtin(cmd->args[0]))
+// 	{
+// 		shell->exit_code = execute_builtin(cmd, shell, history);
+// 		exit(shell->exit_code);
+// 	}
+// 	else
+// 		execute_external(cmd, shell);
+// }
 
 int	parent_process(int input_fd, int pipe_fd[2], t_command *cmd)
 {
