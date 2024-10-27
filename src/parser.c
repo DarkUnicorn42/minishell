@@ -24,6 +24,10 @@ t_command *parse_tokens(t_token *tokens) {
             }
             // Add arguments based on their type
             add_argument(current_command, tokens->value, tokens->type);
+            if (!current_command) {
+                free_commands(commands);
+                return NULL;
+            }
         } else if (tokens->type == TOKEN_PIPE) {
            // printf("Parser: Found pipe -> Starting a new command\n");
             current_command = NULL; // Start a new command after a pipe
@@ -54,7 +58,8 @@ t_command *create_command() {
     cmd->args = malloc(sizeof(char *) * 1);
     cmd->arg_types = malloc(sizeof(t_token_type) * 1);
     if (!cmd->args || !cmd->arg_types) {
-        free(cmd);
+        //  free(cmd);
+        free_commands(cmd);
         return NULL;
     }
     cmd->args[0] = NULL;
@@ -86,8 +91,11 @@ void add_argument(t_command *command, char *arg, t_token_type type) {
     char **new_args = malloc(sizeof(char *) * (i + 2));
     t_token_type *new_arg_types = malloc(sizeof(t_token_type) * (i + 1));
     if (!new_args || !new_arg_types)
+    {
+        free(new_args);
+        free(new_arg_types);
         return;
-
+    }
     // Copy existing arguments and types to new arrays
     for (int j = 0; j < i; j++) {
         new_args[j] = command->args[j];
@@ -96,6 +104,12 @@ void add_argument(t_command *command, char *arg, t_token_type type) {
 
     // Add the new argument and type
     new_args[i] = ft_strdup(arg);
+    if (!new_args[i])
+    {
+        free(new_args);
+        free(new_arg_types);
+        return;
+    }
     new_args[i + 1] = NULL;
     new_arg_types[i] = type;
 

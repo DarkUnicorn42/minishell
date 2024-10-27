@@ -75,6 +75,11 @@ t_token *collect_word_token(const char *input, size_t *i)
         token = create_token(TOKEN_DOUBLE_QUOTED, word);
     else
         token = create_token(TOKEN_WORD, word);
+    if (!token)
+    {
+        free(word);
+        return (NULL);
+    }
     return (token);
 }
 
@@ -92,8 +97,11 @@ int handle_quotes(const char *input, size_t *i, char **word, int *quote_type)
     if (!temp)
     {
         free(quoted_content);
+        free(*word);
         return (0);
     }
+    // free(*word);
+    // free(quoted_content);
     *word = temp;
     if (quote_char == '\'' && *quote_type != 2)
         *quote_type = 1;
@@ -118,8 +126,12 @@ char *collect_quoted(const char *input, size_t *i, char quote_char)
     }
     quoted = ft_substr(input, start, *i - start);
     if (!quoted)
+    {
+        free(quoted);
         return (NULL);
-    (*i)++;
+    }
+    else
+        (*i)++;
     return (quoted);
 }
 
@@ -141,10 +153,12 @@ int	handle_unquoted(const char *input, size_t *i, char **word)
 	temp = join_and_free(*word, substr);
 	if (!temp)
 	{
+        free(*word);
 		free(substr);
 		return (0);
 	}
-	*word = temp;
+    else
+	    *word = temp;
 	return (1);
 }
 

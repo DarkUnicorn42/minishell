@@ -74,7 +74,10 @@ int	handle_word(const char *input, size_t *i, t_token **tokens)
 
 	new_token = collect_word_token(input, i);
 	if (!new_token)
+	{	
+		free_tokens(*tokens);
 		return (0);
+	}
 	add_token(tokens, new_token);
 	return (1);
 }

@@ -73,7 +73,7 @@ int main(int argc, char **argv, char **envp) {
                 history.capacity *= 2;
                 history.commands = realloc(history.commands, sizeof(char *) * history.capacity);
             }
-            history.commands[history.count++] = strdup(input);
+            history.commands[history.count++] = ft_strdup(input);
         }
 
         // Call lexer to tokenize the input

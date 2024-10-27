@@ -107,7 +107,7 @@ char	*expand_argument(char *arg, t_shell *shell);
 //pipes.c
 int create_pipe(int pipe_fd[2]);
 pid_t	fork_process(void);
-void	execute_child(t_command *cmd, t_shell *shell, t_history *history, int input_fd, int pipe_fd[2]);
+//void	execute_child(t_command *cmd, t_shell *shell, t_history *history, int input_fd, int pipe_fd[2]);
 int	parent_process(int input_fd, int pipe_fd[2], t_command *cmd);
 void	wait_for_children(t_shell *shell, pid_t last_pid);
 void	setup_child_io(t_command *cmd, int input_fd, int pipe_fd[2]);
@@ -144,7 +144,7 @@ void print_tokens(t_token *tokens);
 void free_tokens(t_token *tokens);
 char **duplicate_envp(char **envp);
 char *ft_strncat_char(char *str, char c);
-char *join_and_free(char *str1, const char *str2);
+char *join_and_free(char *str1, char *str2);
 void skip_whitespace(const char *input, size_t *i);
 int is_operator_char(char c);
 int	set_exit_code(t_shell *shell, int code);

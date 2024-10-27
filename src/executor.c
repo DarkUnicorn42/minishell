@@ -64,7 +64,6 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history)
     return 0;
 }
 
-
 int	is_builtin_parent(char *cmd)
 {
 	if (!ft_strcmp(cmd, "cd") || !ft_strcmp(cmd, "export") ||
@@ -155,8 +154,8 @@ void execute_external(t_command *command, t_shell *shell)
         free_string_array(paths);
         if (!full_path)
         {
-            ft_putstr_fd(command->args[0], STDERR_FILENO);
-            ft_putstr_fd(": command not found\n", STDERR_FILENO);
+           // ft_putstr_fd(command->args[0], STDERR_FILENO);
+           // ft_putstr_fd(": command not found\n", STDERR_FILENO);
             exit(127);
         }
     }

@@ -49,7 +49,7 @@ char **duplicate_envp(char **envp) {
         return NULL;
 
     for (int i = 0; i < count; i++) {
-        new_envp[i] = strdup(envp[i]);
+        new_envp[i] = ft_strdup(envp[i]);
         if (!new_envp[i]) {
             // Handle memory allocation failure by freeing already allocated memory
             while (--i >= 0)
@@ -76,12 +76,13 @@ char *ft_strncat_char(char *str, char c) {
     return new_str;
 }
 
-char *join_and_free(char *str1, const char *str2)
+char *join_and_free(char *str1, char *str2)
 {
     char *result;
 
     result = ft_strjoin(str1, str2);
     free(str1);
+    free(str2);
     return result;
 }
 
