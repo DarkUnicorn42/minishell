@@ -33,7 +33,10 @@ void	free_tokens(t_token *tokens)
 		temp = tokens;
 		tokens = tokens->next;
 		if (temp->value)
-			free(temp->value);
+        {
+            free(temp->value);
+            temp->value = NULL;
+        }
 		free(temp);
 		temp = NULL;
 	}
