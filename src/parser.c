@@ -21,11 +21,16 @@ t_command *parse_tokens(t_token *tokens) {
             if (!current_command) {
                 current_command = create_command();
                 add_command(&commands, current_command);
+                // if (!current_command) {
+                //     free_commands(commands);
+                //     return NULL;
+                // }
             }
             // Add arguments based on their type
             add_argument(current_command, tokens->value, tokens->type);
             if (!current_command) {
                 free_commands(commands);
+                // free_tokens(tokens);
                 return NULL;
             }
         } else if (tokens->type == TOKEN_PIPE) {
@@ -37,13 +42,14 @@ t_command *parse_tokens(t_token *tokens) {
             if (!tokens || (tokens->type != TOKEN_WORD && tokens->type != TOKEN_SINGLE_QUOTED && tokens->type != TOKEN_DOUBLE_QUOTED)) {
                 printf("Error: Expected delimiter after redirection\n");
                 free_commands(commands);
+                // free_tokens(tokens);
                 return NULL;
             }
-            if (!current_command) {
-               // printf("Error: Redirection without command\n");
-                free_commands(commands);
-                return NULL;
-            }
+            // if (!current_command) {
+            //    // printf("Error: Redirection without command\n");
+            //     free_commands(commands);
+            //     return NULL;
+            // }
             add_redirection(current_command, redir_type, tokens->value);
         }
         tokens = tokens->next;
@@ -83,11 +89,8 @@ void add_command(t_command **commands, t_command *new_command) {
 void add_argument(t_command *command, char *arg, t_token_type type) {
     int i = 0;
 
-    // Count existing arguments
     while (command->args && command->args[i])
         i++;
-
-    // Allocate memory for new arguments and types
     char **new_args = malloc(sizeof(char *) * (i + 2));
     t_token_type *new_arg_types = malloc(sizeof(t_token_type) * (i + 1));
     if (!new_args || !new_arg_types)
@@ -96,30 +99,24 @@ void add_argument(t_command *command, char *arg, t_token_type type) {
         free(new_arg_types);
         return;
     }
-    // Copy existing arguments and types to new arrays
     for (int j = 0; j < i; j++) {
         new_args[j] = command->args[j];
         new_arg_types[j] = command->arg_types[j];
     }
-
-    // Add the new argument and type
     new_args[i] = ft_strdup(arg);
     if (!new_args[i])
     {
+        //free(arg);
         free(new_args);
         free(new_arg_types);
         return;
     }
     new_args[i + 1] = NULL;
     new_arg_types[i] = type;
-
-    // Free the old arrays if they exist
     if (command->args)
         free(command->args);
     if (command->arg_types)
         free(command->arg_types);
-
-    // Update the command with the new arrays
     command->args = new_args;
     command->arg_types = new_arg_types;
 }
@@ -151,41 +148,39 @@ int is_redirection(t_token_type type) {
             type == TOKEN_HEREDOC || type == TOKEN_APPEND);
 }
 
-void	free_commands(t_command *commands)
-{
-	t_command	*temp;
-	int			i;
+void free_arguments(char **args) {
+    if (args) {
+        int i = 0;
+        while (args[i]) {
+            free(args[i]);
+            i++;
+        }
+        free(args);
+    }
+}
 
-	while (commands)
-	{
-		temp = commands;
-		commands = commands->next;
-		if (temp->args)
-		{
-			i = 0;
-			while (temp->args[i])
-			{
-				free(temp->args[i]);
-				temp->args[i] = NULL;
-				i++;
-			}
-			free(temp->args);
-			temp->args = NULL;
-		}
-		if (temp->redirections)
-		{
-			t_redirection *redir = temp->redirections;
-			t_redirection *next_redir;
-			while (redir)
-			{
-				next_redir = redir->next;
-				if (redir->file)
-					free(redir->file);
-				free(redir);
-				redir = next_redir;
-			}
-		}
-		free(temp);
-		temp = NULL;
-	}
+void free_commands(t_command *commands) {
+    t_command *temp;
+
+    while (commands) {
+        temp = commands;
+        commands = commands->next;
+        free_arguments(temp->args);
+        if (temp->arg_types) {
+            free(temp->arg_types);
+            temp->arg_types = NULL;
+        }
+        if (temp->redirections) {
+            t_redirection *redir = temp->redirections;
+            t_redirection *next_redir;
+            while (redir) {
+                next_redir = redir->next;
+                if (redir->file)
+                    free(redir->file);
+                free(redir);
+                redir = next_redir;
+            }
+        }
+        free(temp);
+    }
 }

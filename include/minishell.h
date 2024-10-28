@@ -85,6 +85,7 @@ void add_argument(t_command *command, char *arg, t_token_type type);
 void add_redirection(t_command *command, t_token_type type, char *file);
 int is_redirection(t_token_type type);
 void free_commands(t_command *commands);
+void free_arguments(char **args);
 
 // executor.c
 int execute_commands(t_command *commands, t_shell *shell, t_history *history);
