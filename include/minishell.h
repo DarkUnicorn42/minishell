@@ -62,6 +62,12 @@ typedef struct s_command {
     struct s_command *next;        // For a chain of commands connected by pipes
 } t_command;
 
+// minishell.c
+void print_welcome_message(void);
+int init_shell(t_shell *shell, char **envp, t_history *history);
+void process_input(char *input, t_shell *shell, t_history *history);
+void cleanup_shell(t_shell *shell, t_history *history);
+
 
 //lexer.c
 t_token *lexer(const char *input);
@@ -121,11 +127,16 @@ int	handle_heredoc(char *delimiter);
 
 // builtins.c
 int builtin_echo(char **args);
-int builtin_cd(char **args, t_shell *shell);
 int builtin_pwd();
 int builtin_unset(char **args, t_shell *shell);
 int	builtin_exit(char **args, t_shell *shell);
 int builtin_history(t_history *history);
+
+// cd.c
+int	builtin_cd(char **args, t_shell *shell);
+char	*get_cd_path(char **args, t_shell *shell);
+int	update_pwd(t_shell *shell);
+int	count_args(char **args);
 
 // env.c
 int builtin_env(t_shell *shell);
@@ -134,6 +145,7 @@ char	*construct_env_entry(const char *key, const char *value);
 char **set_env_value(const char *key, const char *value, char **envp);
 char	**add_env_entry(char **envp, const char *key, const char *value);
 char **unset_env_value(const char *key, char **envp);
+char	**realloc_envp(char **envp, int new_size);
 
 // export.c
 int expand_envp(t_shell *shell, char *new_var);
@@ -152,6 +164,8 @@ int	set_exit_code(t_shell *shell, int code);
 void	free_string_array(char **array);
 int is_valid_identifier(const char *str);
 int	is_numeric(const char *str);
+void	print_exit_error(char *arg, char *message);
+int	print_error(char *message, int exit_code);
 
 //signals.c
 void handle_sigquit(int sig);

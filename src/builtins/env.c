@@ -78,30 +78,41 @@ char	**add_env_entry(char **envp, const char *key, const char *value)
 {
 	char	**new_envp;
 	int		i;
-	char	*new_entry;
 
 	i = 0;
 	while (envp[i])
 		i++;
-	new_envp = malloc(sizeof(char *) * (i + 2));
+	new_envp = realloc_envp(envp, i + 2);
+	if (!new_envp)
+		return (envp);
+	new_envp[i] = construct_env_entry(key, value);
+	if (!new_envp[i])
+	{
+		ft_putstr_fd("Error: malloc failed in add_env_entry\n", STDERR_FILENO);
+		return (envp);
+	}
+	new_envp[i + 1] = NULL;
+	free(envp);
+	return (new_envp);
+}
+
+char	**realloc_envp(char **envp, int new_size)
+{
+	char	**new_envp;
+	int		i;
+
+	new_envp = malloc(sizeof(char *) * new_size);
 	if (!new_envp)
 	{
-		ft_putstr_fd("Error: malloc failed in add_env_entry\n", STDERR_FILENO);
-		return (envp);
+		ft_putstr_fd("Error: malloc failed in realloc_envp\n", STDERR_FILENO);
+		return (NULL);
 	}
-	i = -1;
-	while (envp[++i])
-		new_envp[i] = envp[i];
-	new_entry = construct_env_entry(key, value);
-	if (!new_entry)
+	i = 0;
+	while (envp[i])
 	{
-		ft_putstr_fd("Error: malloc failed in add_env_entry\n", STDERR_FILENO);
-		free(new_envp);
-		return (envp);
+		new_envp[i] = envp[i];
+		i++;
 	}
-	new_envp[i++] = new_entry;
-	new_envp[i] = NULL;
-	free(envp);
 	return (new_envp);
 }
 

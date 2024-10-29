@@ -125,7 +125,7 @@ char *collect_quoted(const char *input, size_t *i, char quote_char)
     quoted = ft_substr(input, start, *i - start);
     if (!quoted)
     {
-        free(quoted);
+        //free(quoted);
         return (NULL);
     }
     else
@@ -156,6 +156,8 @@ int	handle_unquoted(const char *input, size_t *i, char **word)
 		return (0);
 	}
     else
+    {
 	    *word = temp;
+    }
 	return (1);
 }

@@ -152,3 +152,18 @@ int	is_numeric(const char *str)
 	}
 	return (1);
 }
+
+void	print_exit_error(char *arg, char *message)
+{
+	ft_putstr_fd("minishell: exit: ", STDERR_FILENO);
+	ft_putstr_fd(arg, STDERR_FILENO);
+	ft_putstr_fd(": ", STDERR_FILENO);
+	ft_putstr_fd(message, STDERR_FILENO);
+	ft_putstr_fd("\n", STDERR_FILENO);
+}
+
+int	print_error(char *message, int exit_code)
+{
+	ft_putstr_fd(message, STDERR_FILENO);
+	return (exit_code);
+}

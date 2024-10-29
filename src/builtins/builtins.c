@@ -35,51 +35,6 @@ int builtin_echo(char **args) {
     return (0);
 }
 
-int builtin_cd(char **args, t_shell *shell) {
-    char *path;
-    char cwd[PATH_MAX];
-    int	arg_count;
-
-	arg_count = 0;
-	while (args[arg_count])
-		arg_count++;
-	if (arg_count > 2)
-	{
-		ft_putstr_fd("cd: too many arguments\n", STDERR_FILENO);
-		return (1);
-	}
-    if (!args[1])
-    {
-        path = get_env_value("HOME", shell->envp);
-        if (!path)
-        {
-            fprintf(stderr, "cd: HOME not set\n");
-            return (1);
-        }
-    }
-    else
-        path = args[1];
-    if (chdir(path) == -1) {
-        perror("cd failed");
-        return (1);
-    }
-    if (getcwd(cwd, sizeof(cwd)) != NULL)
-    {
-        shell->envp = set_env_value("PWD", cwd, shell->envp);
-        if (!shell->envp)
-        {
-            fprintf(stderr, "Error updating PWD\n");
-            return (1);
-        }
-    }
-    else
-    {
-        perror("getcwd failed");
-        return (1);
-    }
-    return (0);
-}
-
 int builtin_pwd(void) {
     char cwd[PATH_MAX];
 
@@ -113,15 +68,11 @@ int builtin_unset(char **args, t_shell *shell) {
 
 int	builtin_exit(char **args, t_shell *shell)
 {
-	int	exit_status;
-
 	if (!args[1])
 		exit(shell->exit_code);
 	if (!is_numeric(args[1]))
 	{
-		ft_putstr_fd("minishell: exit: ", STDERR_FILENO);
-		ft_putstr_fd(args[1], STDERR_FILENO);
-		ft_putstr_fd(": numeric argument required\n", STDERR_FILENO);
+		print_exit_error(args[1], "numeric argument required");
 		exit(2);
 	}
 	if (args[2])
@@ -130,8 +81,7 @@ int	builtin_exit(char **args, t_shell *shell)
 		shell->exit_code = 1;
 		return (1);
 	}
-	exit_status = ft_atoi(args[1]);
-	exit((unsigned char)exit_status);
+	exit((unsigned char)ft_atoi(args[1]));
 }
 
 int builtin_history(t_history *history) {
