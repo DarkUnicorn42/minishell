@@ -31,7 +31,6 @@ int handle_redirections(t_command *command)
     return (0);
 }
 
-
 int	get_dup_fd(t_token_type type)
 {
 	if (type == TOKEN_REDIRECT_IN || type == TOKEN_HEREDOC)
@@ -54,12 +53,9 @@ int open_file_for_redirection(t_redirection *redir)
     else
         return (-1);
     if (fd == -1)
-    {
         return (-1);
-    }
     return (fd);
 }
-
 
 int	handle_heredoc(char *delimiter)
 {
@@ -86,6 +82,6 @@ int	handle_heredoc(char *delimiter)
 		ft_putstr_fd(line, pipe_fd[1]);
 		free(line);
 	}
-	close(pipe_fd[1]); // Close the write end of the pipe
-	return (pipe_fd[0]); // Return the read end of the pipe
+	close(pipe_fd[1]);
+	return (pipe_fd[0]);
 }

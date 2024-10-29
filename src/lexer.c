@@ -100,8 +100,6 @@ int handle_quotes(const char *input, size_t *i, char **word, int *quote_type)
         free(*word);
         return (0);
     }
-    // free(*word);
-    // free(quoted_content);
     *word = temp;
     if (quote_char == '\'' && *quote_type != 2)
         *quote_type = 1;
@@ -161,4 +159,3 @@ int	handle_unquoted(const char *input, size_t *i, char **word)
 	    *word = temp;
 	return (1);
 }
-

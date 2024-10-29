@@ -13,26 +13,25 @@
 #include "../../include/minishell.h"
 
 int builtin_echo(char **args) {
-    int i = 1;
-    int newline = 1;
+    int i;
+    int newline;
 
-    // Check if -n flag is present
-    if (args[i] && ft_strcmp(args[i], "-n") == 0) {
+    i = 1;
+    newline = 1;
+    if (args[i] && ft_strcmp(args[i], "-n") == 0)
+    {
         newline = 0;
         i++;
     }
-
-    // Print arguments
-    while (args[i]) {
+    while (args[i])
+    {
         printf("%s", args[i]);
         if (args[i + 1])
             printf(" ");
         i++;
     }
-
     if (newline)
         printf("\n");
-
     return (0);
 }
 
@@ -49,45 +48,48 @@ int builtin_cd(char **args, t_shell *shell) {
 		ft_putstr_fd("cd: too many arguments\n", STDERR_FILENO);
 		return (1);
 	}
-    if (!args[1]) {
+    if (!args[1])
+    {
         path = get_env_value("HOME", shell->envp);
-        if (!path) {
+        if (!path)
+        {
             fprintf(stderr, "cd: HOME not set\n");
-            return 1;
+            return (1);
         }
-    } else {
-        path = args[1];
     }
-
-    // Attempt to change the directory
+    else
+        path = args[1];
     if (chdir(path) == -1) {
         perror("cd failed");
-        return 1;
+        return (1);
     }
-
-    // Update PWD in shell->envp
-    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
         shell->envp = set_env_value("PWD", cwd, shell->envp);
-        if (!shell->envp) {
+        if (!shell->envp)
+        {
             fprintf(stderr, "Error updating PWD\n");
-            return 1;
+            return (1);
         }
-    } else {
-        perror("getcwd failed");
-        return 1;
     }
-
-    return 0;
+    else
+    {
+        perror("getcwd failed");
+        return (1);
+    }
+    return (0);
 }
-
 
 int builtin_pwd(void) {
     char cwd[PATH_MAX];
 
-    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
         printf("%s\n", cwd);
-        return 0;
-    } else {
+        return (0);
+    }
+    else 
+    {
         perror("pwd");
         return (1);
     }
@@ -106,8 +108,7 @@ int builtin_unset(char **args, t_shell *shell) {
         }
         i++;
     }
-
-    return exit_code;
+    return (exit_code);
 }
 
 int	builtin_exit(char **args, t_shell *shell)
@@ -137,5 +138,5 @@ int builtin_history(t_history *history) {
     for (int i = 0; i < history->count; i++) {
         printf("%d %s\n", i + 1, history->commands[i]);
     }
-    return 0;
+    return (0);
 }

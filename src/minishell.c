@@ -24,7 +24,7 @@ int main(int argc, char **argv, char **envp) {
     // Initialize shell struct
     shell.envp = duplicate_envp(envp);
     if (!shell.envp) {
-        fprintf(stderr, "Failed to initialize environment variables\n");
+        printf("Failed to initialize environment variables\n");
         return 1;
     }
     shell.exit_code = 0; 
@@ -38,9 +38,7 @@ int main(int argc, char **argv, char **envp) {
     history.commands = malloc(sizeof(char *) * INITIAL_CAPACITY);
     history.count = 0;
     history.capacity = INITIAL_CAPACITY;
-
-    //builtin_env(envp);
-
+    
     // printf("\e[38;5;113m***************************************************************\n");
 	// printf("\e[38;5;113m*  .-.   .-..-..-. .-..-.    .----..-. .-..----..-.   .-.     *\n");
 	// printf("\e[38;5;113m*  |  `.'  || ||  `| || |   { {__  | {_} || {_  | |   | |     *\n");
@@ -75,33 +73,23 @@ int main(int argc, char **argv, char **envp) {
             }
             history.commands[history.count++] = ft_strdup(input);
         }
-
-        // Call lexer to tokenize the input
         tokens = lexer(input);
         if (!tokens) {
-            //printf("Lexer error: Failed to tokenize input\n");
             free(input);
             continue;
         }
-
-        // Call parser to parse tokens into commands
         commands = parse_tokens(tokens);
-        if (!commands) {
-            //printf("Parser error: Failed to parse tokens\n");
+        if (!commands)
+        {
             free_tokens(tokens);
             free(input);
             continue;
         }
-
-        // Execute the parsed commands
         execute_commands(commands, &shell, &history);
-
-        // Free allocated resources
         free_commands(commands);
         free_tokens(tokens);
         free(input);
     }
-
     for (int i = 0; i < history.count; i++) {
         free(history.commands[i]);
     }
@@ -113,5 +101,5 @@ int main(int argc, char **argv, char **envp) {
     }
     free(shell.envp);
 
-    return 0;
+    return (0);
 }
