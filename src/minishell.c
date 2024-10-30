@@ -59,28 +59,13 @@ void	process_input(char *input, t_shell *shell, t_history *history)
 
 	if (input && *input)
 	{
-		add_history(input);
-		if (history->count >= history->capacity)
+		if (!add_history_entry(input, history))
 		{
-			// Double the capacity
-			history->capacity *= 2;
-			// Allocate a new block with the updated capacity
-			char **new_commands = malloc(sizeof(char *) * history->capacity);
-			if (!new_commands)
-			{
-				printf("Memory allocation failed for command history\n");
-				free(input);
-				return;
-			}
-			// Copy existing commands to the new block
-			for (int j = 0; j < history->count; j++)
-				new_commands[j] = history->commands[j];
-			// Free the old commands block
-			free(history->commands);
-			// Point to the new block
-			history->commands = new_commands;
+			ft_putstr_fd("Memory allocation failed for command history\n",
+						 STDERR_FILENO);
+			free(input);
+			return ;
 		}
-		history->commands[history->count++] = ft_strdup(input);
 	}
 	tokens = lexer(input);
 	if (!tokens)
@@ -100,7 +85,6 @@ void	process_input(char *input, t_shell *shell, t_history *history)
 	free_tokens(tokens);
 	free(input);
 }
-
 
 void	cleanup_shell(t_shell *shell, t_history *history)
 {

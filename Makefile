@@ -8,7 +8,7 @@ SOURCES =	src/minishell.c \
 			src/parser/parser.c src/parser/parser_memory.c src/parser/parser_redir.c \
 			src/utils.c src/signals.c \
 			src/expander.c src/pipes.c \
-			src/redirections.c \
+			src/redirections.c src/history.c \
 			
 OBJECTS = $(SOURCES:.c=.o)
 
