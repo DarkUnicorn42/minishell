@@ -1,7 +1,48 @@
 
 #include "../../include/minishell.h"
 
-int expand_envp(t_shell *shell, char *new_var) {
+
+int	builtin_export(char **args, t_shell *shell)
+{
+	int		i;
+	int		exit_code;
+
+	if (!args[1])
+		return (print_export_env(shell));
+	exit_code = 0;
+	i = 1;
+	while (args[i])
+	{
+		if (!process_export_arg(args[i], shell))
+			exit_code = 1;
+		i++;
+	}
+	return (exit_code);
+}
+
+int	process_export_arg(char *arg, t_shell *shell)
+{
+	char	*key;
+	char	*value;
+	int		result;
+
+	result = parse_export_arg(arg, &key, &value);
+	if (result == -1)
+		return (print_error("malloc error\n", 1));
+	if (result == 0)
+		return (print_export_id_error(arg));
+	if (update_envp(shell->envp, key, value) == -1)
+	{
+		if (expand_envp(shell, arg))
+			return (print_error("malloc error\n", 1));
+	}
+	free(key);
+	free(value);
+	return (1);
+}
+
+int expand_envp(t_shell *shell, char *new_var)
+{
     int count = 0;
 
     while (shell->envp[count])
@@ -46,55 +87,46 @@ int update_envp(char **envp, char *key, char *new_value)
     return -1;
 }
 
-int builtin_export(char **args, t_shell *shell) {
-    int i = 1;
-    char *equal_sign;
-    int exit_code = 0;
+int	print_export_env(t_shell *shell)
+{
+	int	i;
 
-    if (!args[1]) {
-        for (int j = 0; shell->envp[j] != NULL; j++)
-            printf("declare -x %s\n", shell->envp[j]);
-        return 0;
-    }
+	i = 0;
+	while (shell->envp[i])
+	{
+		ft_putstr_fd("declare -x ", STDOUT_FILENO);
+		ft_putendl_fd(shell->envp[i], STDOUT_FILENO);
+		i++;
+	}
+	return (0);
+}
 
-    while (args[i]) {
-        equal_sign = ft_strchr(args[i], '=');
+int	parse_export_arg(char *arg, char **key, char **value)
+{
+	char	*equal_sign;
 
-        if (equal_sign) {
-            size_t key_length = equal_sign - args[i];
-            char *key = ft_substr(args[i], 0, key_length);
-            if (!key) {
-                perror("malloc");
-                return 1;
-            }
+	equal_sign = ft_strchr(arg, '=');
+	if (equal_sign)
+	{
+		*key = ft_substr(arg, 0, equal_sign - arg);
+		*value = ft_strdup(equal_sign + 1);
+	}
+	else
+	{
+		*key = ft_strdup(arg);
+		*value = NULL;
+	}
+	if (!*key || (equal_sign && !*value))
+		return (-1);
+	if (!is_valid_identifier(*key))
+		return (0);
+	return (1);
+}
 
-            if (!is_valid_identifier(key)) {
-                fprintf(stderr, "export: `%s': not a valid identifier\n", key);
-                //free(key);
-                exit_code = 1;
-            } else {
-                if (update_envp(shell->envp, key, args[i]) == -1) {
-                    if (expand_envp(shell, args[i])) {
-                        free(key);
-                        return 1;
-                    }
-                }
-            }
-            free(key);
-        } else {
-            if (!is_valid_identifier(args[i])) {
-                fprintf(stderr, "export: `%s': not a valid identifier\n", args[i]);
-                exit_code = 1;
-            } else {
-                if (update_envp(shell->envp, args[i], args[i]) == -1) {
-                    if (expand_envp(shell, args[i])) {
-                        return 1;
-                    }
-                }
-            }
-        }
-        i++;
-    }
-
-    return exit_code;
+int	print_export_id_error(char *identifier)
+{
+	ft_putstr_fd("export: `", STDERR_FILENO);
+	ft_putstr_fd(identifier, STDERR_FILENO);
+	ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
+	return (0);
 }

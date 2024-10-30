@@ -33,7 +33,7 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history)
             if (pid == -1)
                 return (set_exit_code(shell, 1));
 
-            if (pid == 0)  // Child 
+            if (pid == 0)
             {
                 setup_child_io(cmd, input_fd, pipe_fd);
                 if (handle_redirections(cmd) == -1)
@@ -46,14 +46,14 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history)
                     execute_external(cmd, shell);
                 exit(shell->exit_code);
             }
-            else  // Parent 
+            else 
             {
                 if (input_fd != STDIN_FILENO)
-                    close(input_fd); // Close previous input
+                    close(input_fd);
                 if (cmd->next)
                 {
-                    close(pipe_fd[1]); // Close unused write end
-                    input_fd = pipe_fd[0]; // Set read end for next command
+                    close(pipe_fd[1]);
+                    input_fd = pipe_fd[0];
                 }
                 last_pid = pid;
             }
@@ -92,7 +92,6 @@ int execute_builtin(t_command *command, t_shell *shell, t_history *history)
     }
     return run_builtin_command(command, shell, history);
 }
-
 
 int	run_builtin_command(t_command *command, t_shell *shell, t_history *history)
 {

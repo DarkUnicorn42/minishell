@@ -12,7 +12,8 @@
 
 #include "../../include/minishell.h"
 
-int builtin_echo(char **args) {
+int builtin_echo(char **args)
+{
     int i;
     int newline;
 
@@ -35,7 +36,8 @@ int builtin_echo(char **args) {
     return (0);
 }
 
-int builtin_pwd(void) {
+int builtin_pwd(void)
+{
     char cwd[PATH_MAX];
 
     if (getcwd(cwd, sizeof(cwd)) != NULL)
@@ -50,17 +52,21 @@ int builtin_pwd(void) {
     }
 }
 
-int builtin_unset(char **args, t_shell *shell) {
-    int i = 1;
-    int exit_code = 0;
+int builtin_unset(char **args, t_shell *shell)
+{
+    int i;
+    int exit_code;
 
+    i = 1;
+    exit_code = 0;
     while (args[i]) {
-        if (!is_valid_identifier(args[i])) {
+        if (!is_valid_identifier(args[i]))
+        {
             fprintf(stderr, "unset: '%s': not a valid identifier\n", args[i]);
             exit_code = 1;
-        } else {
-            shell->envp = unset_env_value(args[i], shell->envp);
         }
+        else
+            shell->envp = unset_env_value(args[i], shell->envp);
         i++;
     }
     return (exit_code);
@@ -84,9 +90,15 @@ int	builtin_exit(char **args, t_shell *shell)
 	exit((unsigned char)ft_atoi(args[1]));
 }
 
-int builtin_history(t_history *history) {
-    for (int i = 0; i < history->count; i++) {
+int builtin_history(t_history *history)
+{
+    int i;
+
+    i = 0;
+    while (i < history->count)
+    {
         printf("%d %s\n", i + 1, history->commands[i]);
+        i++;
     }
     return (0);
 }

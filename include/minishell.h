@@ -148,9 +148,13 @@ char **unset_env_value(const char *key, char **envp);
 char	**realloc_envp(char **envp, int new_size);
 
 // export.c
+int builtin_export(char **args, t_shell *shell);
+int	process_export_arg(char *arg, t_shell *shell);
 int expand_envp(t_shell *shell, char *new_var);
 int update_envp(char **envp, char *key, char *new_value);
-int builtin_export(char **args, t_shell *shell);
+int	print_export_env(t_shell *shell);
+int	parse_export_arg(char *arg, char **key, char **value);
+int	print_export_id_error(char *identifier);
 
 //utils.c
 void print_tokens(t_token *tokens);
