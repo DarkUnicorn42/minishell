@@ -87,13 +87,21 @@ void add_token(t_token **tokens, t_token *new_token);
 
 // parser.c
 t_command *parse_tokens(t_token *tokens);
+int	handle_redirection(t_token **tokens, t_command *current_command,
+						t_command **commands);
+t_command	*start_new_command(t_command **commands);
+int	is_word_token(t_token_type type);
 t_command *create_command();
 void add_command(t_command **commands, t_command *new_command);
 void add_argument(t_command *command, char *arg, t_token_type type);
+char	**realloc_arguments(char **args, int i, char *arg);
+t_token_type	*realloc_arg_types(t_token_type *arg_types, int i, t_token_type type);
 void add_redirection(t_command *command, t_token_type type, char *file);
 int is_redirection(t_token_type type);
 void free_commands(t_command *commands);
 void free_arguments(char **args);
+void	free_command(t_command *command);
+void	free_redirections(t_redirection *redir);
 
 // executor.c
 int execute_commands(t_command *commands, t_shell *shell, t_history *history);

@@ -12,11 +12,7 @@ int handle_redirections(t_command *command)
         fd = open_file_for_redirection(redir);
         if (fd == -1)
         {
-            ft_putstr_fd("minishell: ", STDERR_FILENO);
-            ft_putstr_fd(redir->file, STDERR_FILENO);
-            ft_putstr_fd(": ", STDERR_FILENO);
-            ft_putstr_fd(strerror(errno), STDERR_FILENO);
-            ft_putstr_fd("\n", STDERR_FILENO);
+            print_exit_error(redir->file, strerror(errno));
             return (-1);
         }
         if (dup2(fd, get_dup_fd(redir->type)) == -1)
@@ -84,4 +80,18 @@ int	handle_heredoc(char *delimiter)
 	}
 	close(pipe_fd[1]);
 	return (pipe_fd[0]);
+}
+
+void	free_redirections(t_redirection *redir)
+{
+	t_redirection	*next_redir;
+
+	while (redir)
+	{
+		next_redir = redir->next;
+		if (redir->file)
+			free(redir->file);
+		free(redir);
+		redir = next_redir;
+	}
 }
