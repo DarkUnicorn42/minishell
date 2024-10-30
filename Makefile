@@ -1,8 +1,11 @@
 
 NAME = minishell
 
-SOURCES =	src/minishell.c src/utils.c src/lexer.c src/parser.c src/executor.c src/signals.c \
-			src/builtins/builtins.c src/builtins/export.c src/builtins/env.c src/builtins/cd.c src/expander.c src/pipes.c \
+SOURCES =	src/minishell.c \
+			src/builtins/builtins.c src/builtins/export.c src/builtins/env.c src/builtins/cd.c \
+			src/executor/executor.c src/executor/executor_builtins.c src/executor/executor_paths.c src/executor/executor_utils.c \
+			src/utils.c src/lexer.c src/parser.c src/signals.c \
+			src/expander.c src/pipes.c \
 			src/redirections.c src/lexer_helper.c \
 			
 OBJECTS = $(SOURCES:.c=.o)

@@ -42,33 +42,46 @@ void	free_tokens(t_token *tokens)
 	}
 }
 
-char **duplicate_envp(char **envp) {
-    int count = 0;
-    while (envp[count])
-        count++;
+char	**duplicate_envp(char **envp)
+{
+	int		count;
+	char	**new_envp;
 
-    char **new_envp = malloc((count + 1) * sizeof(char *));
-    if (!new_envp)
-        return NULL;
+	count = 0;
+	while (envp[count])
+		count++;
+	new_envp = malloc((count + 1) * sizeof(char *));
+	if (!new_envp)
+		return (NULL);
+	if (!copy_envp(envp, new_envp, count))
+		return (NULL);
+	new_envp[count] = NULL;
+	return (new_envp);
+}
 
-    for (int i = 0; i < count; i++) {
-        new_envp[i] = ft_strdup(envp[i]);
-        if (!new_envp[i]) {
-            // Handle memory allocation failure by freeing already allocated memory
-            while (--i >= 0)
-                free(new_envp[i]);
-            free(new_envp);
-            return NULL;
-        }
-    }
-    new_envp[count] = NULL;
+int	copy_envp(char **envp, char **new_envp, int count)
+{
+	int	i;
 
-    return new_envp;
+	i = 0;
+	while (i < count)
+	{
+		new_envp[i] = ft_strdup(envp[i]);
+		if (!new_envp[i])
+		{
+			while (--i >= 0)
+				free(new_envp[i]);
+			free(new_envp);
+			return (0);
+		}
+		i++;
+	}
+	return (1);
 }
 
 char *ft_strncat_char(char *str, char c) {
     size_t len = ft_strlen(str);
-    char *new_str = malloc(len + 2);  // +1 for the new char, +1 for the null terminator
+    char *new_str = malloc(len + 2);
     if (!new_str) {
         perror("malloc");
         return NULL;
@@ -155,7 +168,7 @@ int	is_numeric(const char *str)
 
 void	print_exit_error(char *arg, char *message)
 {
-	ft_putstr_fd("minishell: exit: ", STDERR_FILENO);
+	ft_putstr_fd("minishell: ", STDERR_FILENO);
 	ft_putstr_fd(arg, STDERR_FILENO);
 	ft_putstr_fd(": ", STDERR_FILENO);
 	ft_putstr_fd(message, STDERR_FILENO);

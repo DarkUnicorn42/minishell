@@ -95,13 +95,21 @@ void free_arguments(char **args);
 
 // executor.c
 int execute_commands(t_command *commands, t_shell *shell, t_history *history);
+int execute_command(t_command *cmd, t_shell *shell, t_history *history, int *input_fd, pid_t *last_pid);
 int	is_builtin_parent(char *cmd);
 int	is_builtin(char *cmd);
 int	execute_builtin(t_command *command, t_shell *shell, t_history *history);
 int	run_builtin_command(t_command *command, t_shell *shell, t_history *history);
 void	execute_external(t_command *command, t_shell *shell);
 char	*find_executable_path(char **paths, char *cmd);
-
+void	execute_command_full_path(char *full_path, char **args, char **envp);
+char	*search_in_path(char *cmd, char **envp);
+int	check_file_access(char *full_path);
+char	*get_full_path(t_command *command, t_shell *shell);
+void	execute_parent(t_command *cmd, int *input_fd, int pipe_fd[2], pid_t pid, pid_t *last_pid);
+void	execute_child(t_command *cmd, t_shell *shell, t_history *history, int input_fd, int pipe_fd[2]);
+char	*join_path_cmd(char *path, char *cmd);
+int	check_executable(char *full_path, char *cmd);
 
 //expander.c
 char *expand_variable(const char *str, int *i, t_shell *shell);
@@ -160,6 +168,7 @@ int	print_export_id_error(char *identifier);
 void print_tokens(t_token *tokens);
 void free_tokens(t_token *tokens);
 char **duplicate_envp(char **envp);
+int	copy_envp(char **envp, char **new_envp, int count);
 char *ft_strncat_char(char *str, char c);
 char *join_and_free(char *str1, char *str2);
 void skip_whitespace(const char *input, size_t *i);
