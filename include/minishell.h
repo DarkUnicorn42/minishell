@@ -76,6 +76,8 @@ int handle_word(const char *input, size_t *i, t_token **tokens);
 int handle_quotes(const char *input, size_t *i, char **word, int *quote_type);
 //t_token	*collect_quoted(const char *input, size_t *i, char quote_char);
 char *collect_quoted(const char *input, size_t *i, char quote_char);
+t_token	*create_token_quote(int quote_type, char *word);
+int	parse_word(const char *input, size_t *i, char **word, int *quote_type);
 
 int	handle_unquoted(const char *input, size_t *i, char **word);
 t_token_type	identify_operator(const char *input, size_t *i);
