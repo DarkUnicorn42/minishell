@@ -32,6 +32,12 @@ int	resize_history(t_history *history)
 		new_commands[j] = history->commands[j];
 		j++;
 	}
+    j = 0;
+    while (j < history->count)
+	{
+        free(history->commands[j]);
+		j++;
+	}
 	free(history->commands);
 	history->commands = new_commands;
 	history->capacity = new_capacity;

@@ -16,11 +16,14 @@ GCC = gcc
 
 CFLAGS = -Wall -Werror -Wextra -Iincludes -fPIE
 
-LIBFT = cd include && cd libft && make
+LIBFT = +make -C include/libft
 
 LIB = include/libft/libft.a
 
 READLINE = -L/usr/include -lreadline
+
+THREADS = $(shell nproc)
+THREADS := $(shell expr $(THREADS))
 
 # ------------------------------ Rules ------------------------------
 all: $(NAME)

@@ -72,14 +72,19 @@ int builtin_unset(char **args, t_shell *shell)
     return (exit_code);
 }
 
-int	builtin_exit(char **args, t_shell *shell)
+int	builtin_exit(char **args, t_shell *shell, t_history *history)
 {
+
 	if (!args[1])
+    {
+        cleanup_shell(shell, history);
 		exit(shell->exit_code);
-	if (!is_numeric(args[1]))
+    }
+    if (!is_numeric(args[1]))
 	{
 		print_exit_error(args[1], "numeric argument required");
-		exit(2);
+        cleanup_shell(shell, history);
+        exit(2);
 	}
 	if (args[2])
 	{
@@ -87,6 +92,7 @@ int	builtin_exit(char **args, t_shell *shell)
 		shell->exit_code = 1;
 		return (1);
 	}
+    cleanup_shell(shell, history);
 	exit((unsigned char)ft_atoi(args[1]));
 }
 

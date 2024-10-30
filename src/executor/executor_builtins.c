@@ -45,7 +45,7 @@ int	run_builtin_command(t_command *command, t_shell *shell, t_history *history)
 	else if (ft_strcmp(command->args[0], "env") == 0)
 		return (builtin_env(shell));
 	else if (ft_strcmp(command->args[0], "exit") == 0)
-		return (builtin_exit(command->args, shell));
+		return (builtin_exit(command->args, shell, history));
 	else if (ft_strcmp(command->args[0], "history") == 0)
 		return (builtin_history(history));
 	return (0);
