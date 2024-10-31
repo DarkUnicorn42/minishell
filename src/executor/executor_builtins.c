@@ -24,7 +24,15 @@ int execute_builtin(t_command *command, t_shell *shell, t_history *history)
     while (command->args[i])
     {
         if (command->arg_types[i] != TOKEN_SINGLE_QUOTED)
-            command->args[i] = expand_argument(command->args[i], shell);
+        {
+            char *new_arg = expand_argument(command->args[i], shell);
+            if (!new_arg)
+            {
+                free_commands(command);
+                return (1);
+            }
+            command->args[i] = new_arg;
+        }
         i++;
     }
     return run_builtin_command(command, shell, history);

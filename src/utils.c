@@ -97,10 +97,17 @@ char *join_and_free(char *str1, char *str2)
     char *result;
 
     result = ft_strjoin(str1, str2);
+    if (!result)
+    {
+        free(str1);
+        free(str2);
+        return NULL;
+    }
     free(str1);
     free(str2);
     return result;
 }
+
 
 void skip_whitespace(const char *input, size_t *i)
 {

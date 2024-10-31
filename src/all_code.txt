@@ -72,25 +72,28 @@ int builtin_unset(char **args, t_shell *shell)
     return (exit_code);
 }
 
-int	builtin_exit(char **args, t_shell *shell, t_history *history)
+int builtin_exit(char **args, t_shell *shell, t_history *history)
 {
+    (void)history;
+    if (!args[1])
+    {
+        cleanup_shell(shell, history);
+        exit(shell->exit_code);
+    }
+    if (!is_numeric(args[1]))
+    {
+        print_exit_error(args[1], "numeric argument required");
+        cleanup_shell(shell, history);
+        exit(2);
+    }
+    if (args[2])
+    {
+        ft_putstr_fd("minishell: exit: too many arguments\n", STDERR_FILENO);
+        shell->exit_code = 1;
+        return (1);
+    }
     cleanup_shell(shell, history);
-
-	if (!args[1])
-		exit(shell->exit_code);
-	if (!is_numeric(args[1]))
-	{
-		print_exit_error(args[1], "numeric argument required");
-		exit(2);
-	}
-	if (args[2])
-	{
-		ft_putstr_fd("minishell: exit: too many arguments\n", STDERR_FILENO);
-		shell->exit_code = 1;
-		return (1);
-	}
-    
-	exit((unsigned char)ft_atoi(args[1]));
+    exit((unsigned char)ft_atoi(args[1]));
 }
 
 int builtin_history(t_history *history)
@@ -559,11 +562,20 @@ int execute_builtin(t_command *command, t_shell *shell, t_history *history)
     while (command->args[i])
     {
         if (command->arg_types[i] != TOKEN_SINGLE_QUOTED)
-            command->args[i] = expand_argument(command->args[i], shell);
+        {
+            char *new_arg = expand_argument(command->args[i], shell);
+            if (!new_arg)
+            {
+                free_commands(command);
+                return (1);
+            }
+            command->args[i] = new_arg;
+        }
         i++;
     }
     return run_builtin_command(command, shell, history);
 }
+
 
 int	run_builtin_command(t_command *command, t_shell *shell, t_history *history)
 {
@@ -795,7 +807,8 @@ char	*expand_argument(char *arg, t_shell *shell)
 	if (!expanded_arg)
 	{
 		ft_putstr_fd("Error: malloc failed in expand_argument\n", STDERR_FILENO);
-		return (arg);
+		free(arg);
+		return (NULL);
 	}
 	free(arg);
 	arg = NULL;
@@ -819,32 +832,33 @@ int	add_history_entry(char *input, t_history *history)
 	return (1);
 }
 
-int	resize_history(t_history *history)
+int resize_history(t_history *history)
 {
-	char	**new_commands;
-	int		j;
-	int		new_capacity;
+    char    **new_commands;
+    int     j;
+    int     new_capacity;
 
-	new_capacity = history->capacity * 2;
-	new_commands = malloc(sizeof(char *) * new_capacity);
-	if (!new_commands)
-		return (0);
-	j = 0;
-	while (j < history->count)
-	{
-		new_commands[j] = history->commands[j];
-		j++;
-	}
-    // j = 0;
-    // while (j < history->count)
-	// {
-    //     free(history->commands[j]);
-	// 	j++;
-	// }
-	free(history->commands);
-	history->commands = new_commands;
-	history->capacity = new_capacity;
-	return (1);
+    new_capacity = history->capacity * 2;
+    new_commands = malloc(sizeof(char *) * new_capacity);
+    if (!new_commands)
+        return (0);
+    j = 0;
+    while (j < history->count)
+    {
+        new_commands[j] = history->commands[j];
+        j++;
+    }
+    // Initialize the rest of the new array to NULL
+    while (j < new_capacity)
+    {
+        new_commands[j] = NULL;
+        j++;
+    }
+    // Do not free the individual command strings here
+    free(history->commands);
+    history->commands = new_commands;
+    history->capacity = new_capacity;
+    return (1);
 }
 /* ************************************************************************** */
 /*                                                                            */
@@ -1151,125 +1165,126 @@ int	init_shell(t_shell *shell, char **envp, t_history *history)
 	return (0);
 }
 
-void	process_input(char *input, t_shell *shell, t_history *history)
+void process_input(char *input, t_shell *shell, t_history *history)
 {
-	t_token		*tokens;
-	t_command	*commands;
+    // Ensure previous tokens and commands are freed before processing new input
+    if (shell->tokens)
+    {
+        free_tokens(shell->tokens);
+        shell->tokens = NULL;
+    }
+    if (shell->commands)
+    {
+        free_commands(shell->commands);
+        shell->commands = NULL;
+    }
 
-	if (input && *input)
-	{
-		if (!add_history_entry(input, history))
-		{
-			ft_putstr_fd("Memory allocation failed for command history\n",
-						 STDERR_FILENO);
-			free(input);
-			return ;
-		}
-	}
-	tokens = lexer(input);
-	if (!tokens)
-	{
-		free(input);
-		return ;
-	}
-	commands = parse_tokens(tokens);
-	if (!commands)
-	{
-		free_tokens(tokens);
-		free(input);
-		return ;
-	}
-	execute_commands(commands, shell, history);
-	free_commands(commands);
-	free_tokens(tokens);
-	free(input);
+    // Process input as before, but use shell->tokens and shell->commands
+    if (input && *input)
+    {
+        if (!add_history_entry(input, history))
+        {
+            ft_putstr_fd("Memory allocation failed for command history\n", STDERR_FILENO);
+            free(input);
+            return;
+        }
+    }
+    shell->tokens = lexer(input);
+    if (!shell->tokens)
+    {
+        free(input);
+        return;
+    }
+    shell->commands = parse_tokens(shell->tokens);
+    if (!shell->commands)
+    {
+        free_tokens(shell->tokens);
+        shell->tokens = NULL;
+        free(input);
+        return;
+    }
+    execute_commands(shell->commands, shell, history);
+
+    // Tokens and commands will be freed at the beginning of the next input or in cleanup_shell
+    free(input);
 }
 
-void	cleanup_shell(t_shell *shell, t_history *history)
+void cleanup_shell(t_shell *shell, t_history *history)
 {
-	int	i;
+    int i;
 
-	i = 0;
-	while (i < history->count)
-	{
-		free(history->commands[i]);
-		i++;
-	}
-	free(history->commands);
-	//free(history);
-	i = 0;
-	while (shell->envp[i] != NULL)
-	{
-		free(shell->envp[i]);
-		i++;
-	}
-	free(shell->envp);
+    // Free command history
+    if (history->commands)
+    {
+        for (i = 0; i < history->count; i++)
+        {
+            free(history->commands[i]);
+        }
+        free(history->commands);
+        history->commands = NULL;
+    }
+
+    // Free shell environment variables
+    if (shell->envp)
+    {
+        i = 0;
+        while (shell->envp[i])
+        {
+            free(shell->envp[i]);
+            i++;
+        }
+        free(shell->envp);
+        shell->envp = NULL;
+    }
+
+    // Free current_dir if allocated
+    if (shell->current_dir)
+    {
+        free(shell->current_dir);
+        shell->current_dir = NULL;
+    }
+
+    // Free any remaining tokens
+    if (shell->tokens)
+    {
+        free_tokens(shell->tokens);
+        shell->tokens = NULL;
+    }
+
+    // Free any remaining commands
+    if (shell->commands)
+    {
+        free_commands(shell->commands);
+        shell->commands = NULL;
+    }
 }
 
-// void	cleanup_shell(t_shell *shell, t_history *history)
-// {
-// 	int	i;
-
-// 	// Free command history
-// 	if (history->commands)
-// 	{
-// 		i = 0;
-// 		while (i < history->count)
-// 		{
-// 			free(history->commands[i]);
-// 			i++;
-// 		}
-// 		free(history->commands);
-// 		history->commands = NULL;
-// 	}
-
-// 	// Free shell environment variables
-// 	if (shell->envp)
-// 	{
-// 		i = 0;
-// 		while (shell->envp[i])
-// 		{
-// 			free(shell->envp[i]);
-// 			i++;
-// 		}
-// 		free(shell->envp);
-// 		shell->envp = NULL;
-// 	}
-
-// 	// Free current_dir if allocated
-// 	if (shell->current_dir)
-// 	{
-// 		free(shell->current_dir);
-// 		shell->current_dir = NULL;
-// 	}
-
-// 	// Add any other necessary cleanup here
-// } 
-
-int	main(int argc, char **argv, char **envp)
+int main(int argc, char **argv, char **envp)
 {
-	t_shell		shell;
-	t_history	history;
-	char		*input;
+    t_shell     shell;
+    t_history   history;
+    char        *input;
 
-	(void)argc;
-	(void)argv;
-	if (init_shell(&shell, envp, &history))
-		return (1);
-	while (1)
-	{
-		input = readline("📟 \e[0;32m(s)hell >> \e[0m");
-		if (input == NULL)
-		{
-			printf(" ");
-			// printf("\n\n\e[0;32mExiting shell...\e[0m\n");
-			// printf("\n\e[1;32m✖️ Shell closed.\e[0m\n\n");
-			break ;
-		}
-		process_input(input, &shell, &history);
-	}
-	cleanup_shell(&shell, &history);
-	return (0);
+    (void)argc;
+    (void)argv;
+    shell.tokens = NULL;
+    shell.commands = NULL;
+
+    if (init_shell(&shell, envp, &history))
+        return (1);
+    while (1)
+    {
+        input = readline("📟 \e[0;32m(s)hell >> \e[0m");
+        if (input == NULL)
+        {
+            printf(" ");
+            // User pressed Ctrl+D
+            cleanup_shell(&shell, &history);
+            break;
+        }
+        process_input(input, &shell, &history);
+    }
+    return (0);
 }
 /* ************************************************************************** */
 /*                                                                            */
@@ -1844,10 +1859,17 @@ char *join_and_free(char *str1, char *str2)
     char *result;
 
     result = ft_strjoin(str1, str2);
+    if (!result)
+    {
+        free(str1);
+        free(str2);
+        return NULL;
+    }
     free(str1);
     free(str2);
     return result;
 }
+
 
 void skip_whitespace(const char *input, size_t *i)
 {

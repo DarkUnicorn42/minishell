@@ -18,13 +18,6 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 
-
-typedef struct s_shell {
-    char **envp;
-    int exit_code;
-    char *current_dir;  // Track current working directory
-} t_shell;
-
 typedef struct s_history {
     char **commands;    // Tablica komend
     int count;          // Liczba zapisanych komend
@@ -62,11 +55,20 @@ typedef struct s_command {
     struct s_command *next;        // For a chain of commands connected by pipes
 } t_command;
 
+typedef struct s_shell {
+    char **envp;
+    int exit_code;
+    char *current_dir;     // Track current working directory
+    t_token *tokens;       // Add tokens pointer
+    t_command *commands;   // Add commands pointer
+} t_shell;
+
 // minishell.c
 void print_welcome_message(void);
 int init_shell(t_shell *shell, char **envp, t_history *history);
 void process_input(char *input, t_shell *shell, t_history *history);
 void cleanup_shell(t_shell *shell, t_history *history);
+
 
 // history.c
 int	add_history_entry(char *input, t_history *history);

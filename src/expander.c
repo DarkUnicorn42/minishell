@@ -103,7 +103,8 @@ char	*expand_argument(char *arg, t_shell *shell)
 	if (!expanded_arg)
 	{
 		ft_putstr_fd("Error: malloc failed in expand_argument\n", STDERR_FILENO);
-		return (arg);
+		free(arg);
+		return (NULL);
 	}
 	free(arg);
 	arg = NULL;

@@ -72,28 +72,34 @@ int builtin_unset(char **args, t_shell *shell)
     return (exit_code);
 }
 
-int	builtin_exit(char **args, t_shell *shell, t_history *history)
+int builtin_exit(char **args, t_shell *shell, t_history *history)
 {
-	if (!args[1])
+    int exit_code;
+
+    //(void)history;
+    if (!args[1])
     {
+        exit_code = shell->exit_code;
         cleanup_shell(shell, history);
-		exit(shell->exit_code);
+        exit(exit_code);
     }
     if (!is_numeric(args[1]))
-	{
-        //cleanup_shell(shell, history);
-		print_exit_error(args[1], "numeric argument required");
+    {
+        print_exit_error(args[1], "numeric argument required");
+        cleanup_shell(shell, history);
         exit(2);
-	}
-	if (args[2])
-	{
-		ft_putstr_fd("minishell: exit: too many arguments\n", STDERR_FILENO);
-		shell->exit_code = 1;
-		return (1);
-	}
-	exit((unsigned char)ft_atoi(args[1]));
+    }
+    if (args[2])
+    {
+        ft_putstr_fd("minishell: exit: too many arguments\n", STDERR_FILENO);
+        shell->exit_code = 1;
+        return (1);
+    }
+    exit_code = (unsigned char)ft_atoi(args[1]);
     cleanup_shell(shell, history);
+    exit(exit_code);
 }
+
 
 int builtin_history(t_history *history)
 {

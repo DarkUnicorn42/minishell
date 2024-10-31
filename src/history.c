@@ -16,30 +16,31 @@ int	add_history_entry(char *input, t_history *history)
 	return (1);
 }
 
-int	resize_history(t_history *history)
+int resize_history(t_history *history)
 {
-	char	**new_commands;
-	int		j;
-	int		new_capacity;
+    char    **new_commands;
+    int     j;
+    int     new_capacity;
 
-	new_capacity = history->capacity * 2;
-	new_commands = malloc(sizeof(char *) * new_capacity);
-	if (!new_commands)
-		return (0);
-	j = 0;
-	while (j < history->count)
-	{
-		new_commands[j] = history->commands[j];
-		j++;
-	}
+    new_capacity = history->capacity * 2;
+    new_commands = malloc(sizeof(char *) * new_capacity);
+    if (!new_commands)
+        return (0);
     j = 0;
     while (j < history->count)
-	{
-        free(history->commands[j]);
-		j++;
-	}
-	free(history->commands);
-	history->commands = new_commands;
-	history->capacity = new_capacity;
-	return (1);
+    {
+        new_commands[j] = history->commands[j];
+        j++;
+    }
+    // Initialize the rest of the new array to NULL
+    while (j < new_capacity)
+    {
+        new_commands[j] = NULL;
+        j++;
+    }
+    // Do not free the individual command strings here
+    free(history->commands);
+    history->commands = new_commands;
+    history->capacity = new_capacity;
+    return (1);
 }

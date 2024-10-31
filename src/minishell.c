@@ -52,88 +52,125 @@ int	init_shell(t_shell *shell, char **envp, t_history *history)
 	return (0);
 }
 
-void	process_input(char *input, t_shell *shell, t_history *history)
+void process_input(char *input, t_shell *shell, t_history *history)
 {
-	t_token		*tokens;
-	t_command	*commands;
+    // Ensure previous tokens and commands are freed before processing new input
+    if (shell->tokens)
+    {
+        free_tokens(shell->tokens);
+        shell->tokens = NULL;
+    }
+    if (shell->commands)
+    {
+        free_commands(shell->commands);
+        shell->commands = NULL;
+    }
 
-	if (input && *input)
-	{
-		if (!add_history_entry(input, history))
-		{
-			ft_putstr_fd("Memory allocation failed for command history\n",
-						 STDERR_FILENO);
-			free(input);
-			return ;
-		}
-	}
-	tokens = lexer(input);
-	if (!tokens)
-	{
-		free(input);
-		return ;
-	}
-	commands = parse_tokens(tokens);
-	if (!commands)
-	{
-		free_tokens(tokens);
-		free(input);
-		return ;
-	}
-	free_tokens(tokens);
-	free(input);
+    // Process input as before, but use shell->tokens and shell->commands
+    if (input && *input)
+    {
+        if (!add_history_entry(input, history))
+        {
+            ft_putstr_fd("Memory allocation failed for command history\n", STDERR_FILENO);
+            free(input);
+            return;
+        }
+    }
+    shell->tokens = lexer(input);
+    if (!shell->tokens)
+    {
+        free(input);
+        return;
+    }
+    shell->commands = parse_tokens(shell->tokens);
+    if (!shell->commands)
+    {
+        free_tokens(shell->tokens);
+        shell->tokens = NULL;
+        free(input);
+        return;
+    }
+    execute_commands(shell->commands, shell, history);
 
-	execute_commands(commands, shell, history);
-	free_commands(commands);
+    // Tokens and commands will be freed at the beginning of the next input or in cleanup_shell
+    free(input);
 }
 
-void	cleanup_shell(t_shell *shell, t_history *history)
+void cleanup_shell(t_shell *shell, t_history *history)
 {
-	int	i;
+    int i;
 
-	i = 0;
-	while (i < history->count)
-	{
-		free(history->commands[i]);
-		i++;
-	}
-	free(history->commands);
-	i = 0;
-	while (shell->envp[i] != NULL)
-	{
-		free(shell->envp[i]);
-		i++;
-	}
-	free(shell->envp);
-	if (shell->current_dir)
-	{
-		free(shell->current_dir);
-		shell->current_dir = NULL;
-	}
+    // Free command history
+    if (history->commands)
+    {
+        for (i = 0; i < history->count; i++)
+        {
+            free(history->commands[i]);
+        }
+        free(history->commands);
+        history->commands = NULL;
+    }
+
+    // Free shell environment variables
+    if (shell->envp)
+    {
+        i = 0;
+        while (shell->envp[i])
+        {
+            free(shell->envp[i]);
+            i++;
+        }
+        free(shell->envp);
+        shell->envp = NULL;
+    }
+
+    // Free current_dir if allocated
+    if (shell->current_dir)
+    {
+        free(shell->current_dir);
+        shell->current_dir = NULL;
+    }
+
+    // Free any remaining tokens
+    if (shell->tokens)
+    {
+        free_tokens(shell->tokens);
+        shell->tokens = NULL;
+    }
+
+    // Free any remaining commands
+    if (shell->commands)
+    {
+        free_commands(shell->commands);
+        shell->commands = NULL;
+    }
 }
 
-int	main(int argc, char **argv, char **envp)
+int main(int argc, char **argv, char **envp)
 {
-	t_shell		shell;
-	t_history	history;
-	char		*input;
+    t_shell     shell;
+    t_history   history;
+    char        *input;
 
-	(void)argc;
-	(void)argv;
-	if (init_shell(&shell, envp, &history))
-		return (1);
-	while (1)
-	{
-		input = readline("📟 \e[0;32m(s)hell >> \e[0m");
-		if (input == NULL)
-		{
-			printf(" ");
-			// printf("\n\n\e[0;32mExiting shell...\e[0m\n");
-			// printf("\n\e[1;32m✖️ Shell closed.\e[0m\n\n");
-			break ;
-		}
-		process_input(input, &shell, &history);
-	}
-	cleanup_shell(&shell, &history);
-	return (0);
+    (void)argc;
+    (void)argv;
+    shell.tokens = NULL;
+    shell.commands = NULL;
+	shell.current_dir = NULL;
+	
+    if (init_shell(&shell, envp, &history))
+        return (1);
+    while (1)
+    {
+        input = readline("📟 \e[0;32m(s)hell >> \e[0m");
+        if (input == NULL)
+        {
+            printf(" ");
+            // User pressed Ctrl+D
+            cleanup_shell(&shell, &history);
+            break;
+        }
+        process_input(input, &shell, &history);
+    }
+    return (0);
 }
