@@ -17,20 +17,21 @@ Welcome to Minishell, a minimalistic shell implemented in C. This project is a s
 
 
 ## Features
-Command Parsing: Supports parsing of user input, including command names, arguments, quotes, and escape characters.
-Built-in Commands: Implements essential built-in commands such as echo, cd, pwd, export, unset, env, exit, and history.
-Pipes and Redirections: Supports piping between commands and input/output redirections (<, >, >>, <<).
-Environment Variable Handling: Allows setting, unsetting, and expanding environment variables.
-Command History: Keeps track of the commands entered during the session.
-Signal Handling: Handles interrupts like Ctrl+C and Ctrl+D gracefully.
-Execution of External Commands: Searches the system PATH to execute external commands.
+- Command Parsing: Supports parsing of user input, including command names, arguments, quotes, and escape characters.
+- Built-in Commands: Implements essential built-in commands such as echo, cd, pwd, export, unset, env, exit, and history.
+- Pipes and Redirections: Supports piping between commands and input/output redirections (<, >, >>, <<).
+- Environment Variable Handling: Allows setting, unsetting, and expanding environment variables.
+- Command History: Keeps track of the commands entered during the session.
+- Signal Handling: Handles interrupts like Ctrl+C and Ctrl+D gracefully.
+- Execution of External Commands: Searches the system PATH to execute external commands.
 
 ## Installation
 To build and run Minishell, you need:
 
-A Unix-like operating system (Linux, macOS).
-A C compiler that supports C99 or later (e.g., gcc).
-The readline library installed on your system.
+* A Unix-like operating system (Linux, macOS).
+* A C compiler that supports C99 or later (e.g., gcc).
+* The readline library installed on your system.
+
 Building Minishell
 
 1. Clone the Repository
@@ -172,17 +173,17 @@ Ctrl+D (EOF): Exits the shell.
 Ctrl+\ (SIGQUIT): Ignored by the shell.
 
 ## Project_Structure
-minishell.c: Entry point of the application.
-include/: Contains header files.
-src/: Contains source files divided into logical units:
-Lexer: Tokenizes user input.
-Parser: Parses tokens into commands.
-Executor: Executes commands.
-Built-ins: Implements built-in commands.
-Environment: Manages environment variables.
-Signals: Handles signal interrupts.
-Utilities: Helper functions and utilities.
-Makefile: Build script for compiling the project.
+- minishell.c: Entry point of the application.
+- include/: Contains header files.
+- src/: Contains source files divided into logical units:
+- Lexer: Tokenizes user input.
+- Parser: Parses tokens into commands.
+- Executor: Executes commands.
+- Built-ins: Implements built-in commands.
+- Environment: Manages environment variables.
+- Signals: Handles signal interrupts.
+- Utilities: Helper functions and utilities.
+- Makefile: Build script for compiling the project.
 
 ## Credits
 
