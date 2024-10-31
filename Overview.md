@@ -19,7 +19,7 @@
 
 ## **1. Overview**
 
-Your `minishell` is designed to:
+`Minishell` is designed to:
 
 - Read user input from the command line.
 - Parse the input into tokens and commands.
