@@ -193,3 +193,4 @@ This project was developed in colaboration with https://github.com/maxszlichta
 This project was developed for educational purposesfor 42 Cursus to gain a deeper understanding of how shells work internally. It is not intended to replace fully-featured shells like Bash or Zsh.
 
 If you have any questions or need further assistance, feel free to reach out!
+
