@@ -80,10 +80,11 @@ void	process_input(char *input, t_shell *shell, t_history *history)
 		free(input);
 		return ;
 	}
-	execute_commands(commands, shell, history);
-	free_commands(commands);
 	free_tokens(tokens);
 	free(input);
+
+	execute_commands(commands, shell, history);
+	free_commands(commands);
 }
 
 void	cleanup_shell(t_shell *shell, t_history *history)
@@ -104,47 +105,12 @@ void	cleanup_shell(t_shell *shell, t_history *history)
 		i++;
 	}
 	free(shell->envp);
+	if (shell->current_dir)
+	{
+		free(shell->current_dir);
+		shell->current_dir = NULL;
+	}
 }
-
-// void	cleanup_shell(t_shell *shell, t_history *history)
-// {
-// 	int	i;
-
-// 	// Free command history
-// 	if (history->commands)
-// 	{
-// 		i = 0;
-// 		while (i < history->count)
-// 		{
-// 			free(history->commands[i]);
-// 			i++;
-// 		}
-// 		free(history->commands);
-// 		history->commands = NULL;
-// 	}
-
-// 	// Free shell environment variables
-// 	if (shell->envp)
-// 	{
-// 		i = 0;
-// 		while (shell->envp[i])
-// 		{
-// 			free(shell->envp[i]);
-// 			i++;
-// 		}
-// 		free(shell->envp);
-// 		shell->envp = NULL;
-// 	}
-
-// 	// Free current_dir if allocated
-// 	if (shell->current_dir)
-// 	{
-// 		free(shell->current_dir);
-// 		shell->current_dir = NULL;
-// 	}
-
-// 	// Add any other necessary cleanup here
-// } 
 
 int	main(int argc, char **argv, char **envp)
 {
