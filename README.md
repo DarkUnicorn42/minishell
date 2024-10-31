@@ -13,6 +13,7 @@ valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all --suppressi
 
 ## Overview
 Minishell
+
 Welcome to Minishell, a minimalistic shell implemented in C. This project is a simplified version of a Unix shell, designed to replicate some of the basic functionalities of popular shells like Bash. The primary goal of this project is to understand how a shell works internally, including command parsing, execution, environment management, and handling built-in commands.
 
 
