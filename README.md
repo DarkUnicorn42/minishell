@@ -12,6 +12,8 @@
 valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all --suppressions=readline.supp ./minishell
 
 ## Overview
+Minishell
+
 Welcome to Minishell, a minimalistic shell implemented in C. This project is a simplified version of a Unix shell, designed to replicate some of the basic functionalities of popular shells like Bash. The primary goal of this project is to understand how a shell works internally, including command parsing, execution, environment management, and handling built-in commands.
 
 
@@ -73,48 +75,48 @@ Prints arguments to the standard output.
 ```bash
 📟 (s)hell >> echo Hello, World!
 Hello, World!
-cd
 ```
 Changes the current directory.
 
 ```bash
+cd
 📟 (s)hell >> cd /path/to/directory
-pwd
 ```
 Prints the current working directory.
 
 ```bash
+pwd
 📟 (s)hell >> pwd
 /Users/yourusername/minishell
-export
 ```
 Sets environment variables.
 
 ```bash
+export
 📟 (s)hell >> export MY_VAR="Hello"
-unset
 ```
 Unsets environment variables.
 
 ```bash
+unset
 📟 (s)hell >> unset MY_VAR
-env
 ```
 Displays all environment variables.
 
 ```bash
+env
 📟 (s)hell >> env
-exit
 ```
 Exits the shell.
 
 ```bash
+exit
 📟 (s)hell >> exit
-history
 ```
 Shows the command history.
 
 ```bash
+history
 📟 (s)hell >> history
 1 echo Hello, World!
 2 pwd
