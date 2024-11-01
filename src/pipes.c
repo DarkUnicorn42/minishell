@@ -49,7 +49,7 @@ void wait_for_children(t_shell *shell, pid_t last_pid)
             else if (WIFSIGNALED(status))
                 shell->exit_code = 128 + WTERMSIG(status);
             else
-                shell->exit_code = 1; // Default exit code
+                shell->exit_code = 1;
         }
     }
 }

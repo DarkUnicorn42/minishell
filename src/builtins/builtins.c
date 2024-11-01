@@ -76,7 +76,6 @@ int builtin_exit(char **args, t_shell *shell, t_history *history)
 {
     int exit_code;
 
-    //(void)history;
     if (!args[1])
     {
         exit_code = shell->exit_code;
@@ -99,7 +98,6 @@ int builtin_exit(char **args, t_shell *shell, t_history *history)
     cleanup_shell(shell, history);
     exit(exit_code);
 }
-
 
 int builtin_history(t_history *history)
 {

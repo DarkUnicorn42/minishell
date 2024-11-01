@@ -11,7 +11,10 @@ char	*get_full_path(t_command *command, t_shell *shell)
 		if (!full_path)
 			print_error("minishell: memory allocation error\n", 1);
 		if (!check_file_access(full_path))
-			return (NULL);
+		{
+            free(full_path);
+            return (NULL);
+        }
 	}
 	else
 	{
@@ -50,6 +53,9 @@ char	*search_in_path(char *cmd, char **envp)
 	full_path = find_executable_path(paths, cmd);
 	free_string_array(paths);
 	if (!full_path)
+	{
 		print_exit_error(cmd, ": command not found\n");
+		free(cmd);
+	}
 	return (full_path);
 }

@@ -91,7 +91,14 @@ void process_input(char *input, t_shell *shell, t_history *history)
         return;
     }
     execute_commands(shell->commands, shell, history);
-
+	if (shell->tokens) {
+        free_tokens(shell->tokens);
+        shell->tokens = NULL;
+    }
+    if (shell->commands) {
+      //  free_commands(shell->commands);
+        shell->commands = NULL;
+    }
     // Tokens and commands will be freed at the beginning of the next input or in cleanup_shell
     free(input);
 }
@@ -157,7 +164,7 @@ int main(int argc, char **argv, char **envp)
     shell.tokens = NULL;
     shell.commands = NULL;
 	shell.current_dir = NULL;
-	
+
     if (init_shell(&shell, envp, &history))
         return (1);
     while (1)
