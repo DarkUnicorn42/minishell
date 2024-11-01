@@ -11,10 +11,7 @@ char	*get_full_path(t_command *command, t_shell *shell)
 		if (!full_path)
 			print_error("minishell: memory allocation error\n", 1);
 		if (!check_file_access(full_path))
-		{
-            free(full_path);
             return (NULL);
-        }
 	}
 	else
 	{
