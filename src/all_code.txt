@@ -74,11 +74,13 @@ int builtin_unset(char **args, t_shell *shell)
 
 int builtin_exit(char **args, t_shell *shell, t_history *history)
 {
-    (void)history;
+    int exit_code;
+
     if (!args[1])
     {
+        exit_code = shell->exit_code;
         cleanup_shell(shell, history);
-        exit(shell->exit_code);
+        exit(exit_code);
     }
     if (!is_numeric(args[1]))
     {
@@ -92,8 +94,9 @@ int builtin_exit(char **args, t_shell *shell, t_history *history)
         shell->exit_code = 1;
         return (1);
     }
+    exit_code = (unsigned char)ft_atoi(args[1]);
     cleanup_shell(shell, history);
-    exit((unsigned char)ft_atoi(args[1]));
+    exit(exit_code);
 }
 
 int builtin_history(t_history *history)
@@ -459,29 +462,33 @@ int	print_export_id_error(char *identifier)
 
 #include "../../include/minishell.h"
 
-int	execute_commands(t_command *commands, t_shell *shell, t_history *history)
+int execute_commands(t_command *commands, t_shell *shell, t_history *history)
 {
-	t_command	*cmd;
-	int			input_fd;
-	pid_t		last_pid;
+    t_command *cmd;
+    int input_fd;
+    pid_t last_pid;
 
-	input_fd = STDIN_FILENO;
-	last_pid = -1;
-	cmd = commands;
-	while (cmd)
-	{
-		if (is_builtin_parent(cmd->args[0]) && !cmd->next)
-			shell->exit_code = execute_builtin(cmd, shell, history);
-		else
-		{
-			if (!execute_command(cmd, shell, history, &input_fd, &last_pid))
-				return (set_exit_code(shell, 1));
-		}
-		cmd = cmd->next;
-	}
-	wait_for_children(shell, last_pid);
-	return (0);
+    input_fd = STDIN_FILENO;
+    last_pid = -1;
+    cmd = commands;
+    while (cmd)
+    {
+        if (is_builtin_parent(cmd->args[0]) && !cmd->next)
+            shell->exit_code = execute_builtin(cmd, shell, history);
+        else
+        {
+            if (!execute_command(cmd, shell, history, &input_fd, &last_pid))
+			{
+                return (set_exit_code(shell, 1));
+			}
+        }
+        cmd = cmd->next;
+    }
+    wait_for_children(shell, last_pid);
+    free_commands(commands);
+    return (0);
 }
+
 
 int	execute_command(t_command *cmd, t_shell *shell, t_history *history,
 					int *input_fd, pid_t *last_pid)
@@ -511,6 +518,7 @@ void	execute_child(t_command *cmd, t_shell *shell, t_history *history,
 		shell->exit_code = execute_builtin(cmd, shell, history);
 	else
 		execute_external(cmd, shell);
+	cleanup_shell(shell, history);
 	exit(shell->exit_code);
 }
 
@@ -527,14 +535,15 @@ void	execute_parent(t_command *cmd, int *input_fd, int pipe_fd[2],
 	*last_pid = pid;
 }
 
-void	execute_external(t_command *command, t_shell *shell)
+void execute_external(t_command *command, t_shell *shell)
 {
-	char	*full_path;
+    char *full_path;
 
-	full_path = get_full_path(command, shell);
-	if (!full_path)
-		exit(127);
-	execute_command_full_path(full_path, command->args, shell->envp);
+    full_path = get_full_path(command, shell);
+    if (!full_path)
+        exit(127);
+    execute_command_full_path(full_path, command->args, shell->envp);
+    free(full_path);
 }
 
 #include "../../include/minishell.h"
@@ -576,7 +585,6 @@ int execute_builtin(t_command *command, t_shell *shell, t_history *history)
     return run_builtin_command(command, shell, history);
 }
 
-
 int	run_builtin_command(t_command *command, t_shell *shell, t_history *history)
 {
 	if (ft_strcmp(command->args[0], "echo") == 0)
@@ -597,6 +605,7 @@ int	run_builtin_command(t_command *command, t_shell *shell, t_history *history)
 		return (builtin_history(history));
 	return (0);
 }
+
 #include "../../include/minishell.h"
 
 char	*get_full_path(t_command *command, t_shell *shell)
@@ -609,7 +618,10 @@ char	*get_full_path(t_command *command, t_shell *shell)
 		if (!full_path)
 			print_error("minishell: memory allocation error\n", 1);
 		if (!check_file_access(full_path))
-			return (NULL);
+		{
+            free(full_path);
+            return (NULL);
+        }
 	}
 	else
 	{
@@ -648,7 +660,10 @@ char	*search_in_path(char *cmd, char **envp)
 	full_path = find_executable_path(paths, cmd);
 	free_string_array(paths);
 	if (!full_path)
+	{
 		print_exit_error(cmd, ": command not found\n");
+		free(cmd);
+	}
 	return (full_path);
 }
 
@@ -1204,7 +1219,14 @@ void process_input(char *input, t_shell *shell, t_history *history)
         return;
     }
     execute_commands(shell->commands, shell, history);
-
+	if (shell->tokens) {
+        free_tokens(shell->tokens);
+        shell->tokens = NULL;
+    }
+    if (shell->commands) {
+      //  free_commands(shell->commands);
+        shell->commands = NULL;
+    }
     // Tokens and commands will be freed at the beginning of the next input or in cleanup_shell
     free(input);
 }
@@ -1269,6 +1291,7 @@ int main(int argc, char **argv, char **envp)
     (void)argv;
     shell.tokens = NULL;
     shell.commands = NULL;
+	shell.current_dir = NULL;
 
     if (init_shell(&shell, envp, &history))
         return (1);
@@ -1590,7 +1613,7 @@ void wait_for_children(t_shell *shell, pid_t last_pid)
             else if (WIFSIGNALED(status))
                 shell->exit_code = 128 + WTERMSIG(status);
             else
-                shell->exit_code = 1; // Default exit code
+                shell->exit_code = 1;
         }
     }
 }

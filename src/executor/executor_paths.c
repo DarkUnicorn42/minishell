@@ -55,7 +55,7 @@ char	*search_in_path(char *cmd, char **envp)
 	if (!full_path)
 	{
 		print_exit_error(cmd, ": command not found\n");
-		free(cmd);
+		//free(cmd);
 	}
 	return (full_path);
 }

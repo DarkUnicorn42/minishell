@@ -115,7 +115,7 @@ int	is_builtin_parent(char *cmd);
 int	is_builtin(char *cmd);
 int	execute_builtin(t_command *command, t_shell *shell, t_history *history);
 int	run_builtin_command(t_command *command, t_shell *shell, t_history *history);
-void	execute_external(t_command *command, t_shell *shell);
+void execute_external(t_command *command, t_shell *shell, t_history *history);
 char	*find_executable_path(char **paths, char *cmd);
 void	execute_command_full_path(char *full_path, char **args, char **envp);
 char	*search_in_path(char *cmd, char **envp);
