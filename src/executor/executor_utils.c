@@ -48,4 +48,3 @@ int	check_file_access(char *full_path)
 	}
 	return (1);
 }
-

@@ -53,9 +53,6 @@ char	*search_in_path(char *cmd, char **envp)
 	full_path = find_executable_path(paths, cmd);
 	free_string_array(paths);
 	if (!full_path)
-	{
 		print_exit_error(cmd, ": command not found\n");
-		//free(cmd);
-	}
 	return (full_path);
 }

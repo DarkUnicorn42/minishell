@@ -32,13 +32,11 @@ int resize_history(t_history *history)
         new_commands[j] = history->commands[j];
         j++;
     }
-    // Initialize the rest of the new array to NULL
     while (j < new_capacity)
     {
         new_commands[j] = NULL;
         j++;
     }
-    // Do not free the individual command strings here
     free(history->commands);
     history->commands = new_commands;
     history->capacity = new_capacity;

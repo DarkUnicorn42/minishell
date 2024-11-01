@@ -54,7 +54,6 @@ int	init_shell(t_shell *shell, char **envp, t_history *history)
 
 void process_input(char *input, t_shell *shell, t_history *history)
 {
-    // Ensure previous tokens and commands are freed before processing new input
     if (shell->tokens)
     {
         free_tokens(shell->tokens);
@@ -65,8 +64,6 @@ void process_input(char *input, t_shell *shell, t_history *history)
         free_commands(shell->commands);
         shell->commands = NULL;
     }
-
-    // Process input as before, but use shell->tokens and shell->commands
     if (input && *input)
     {
         if (!add_history_entry(input, history))
@@ -91,15 +88,16 @@ void process_input(char *input, t_shell *shell, t_history *history)
         return;
     }
     execute_commands(shell->commands, shell, history);
-	if (shell->tokens) {
+	if (shell->tokens)
+    {
         free_tokens(shell->tokens);
         shell->tokens = NULL;
     }
-    if (shell->commands) {
-      //  free_commands(shell->commands);
+    if (shell->commands)
+    {
+        free_commands(shell->commands);
         shell->commands = NULL;
     }
-    // Tokens and commands will be freed at the beginning of the next input or in cleanup_shell
     free(input);
 }
 
@@ -107,7 +105,6 @@ void cleanup_shell(t_shell *shell, t_history *history)
 {
     int i;
 
-    // Free command history
     if (history->commands)
     {
         for (i = 0; i < history->count; i++)
@@ -117,8 +114,6 @@ void cleanup_shell(t_shell *shell, t_history *history)
         free(history->commands);
         history->commands = NULL;
     }
-
-    // Free shell environment variables
     if (shell->envp)
     {
         i = 0;
@@ -130,22 +125,16 @@ void cleanup_shell(t_shell *shell, t_history *history)
         free(shell->envp);
         shell->envp = NULL;
     }
-
-    // Free current_dir if allocated
     if (shell->current_dir)
     {
         free(shell->current_dir);
         shell->current_dir = NULL;
     }
-
-    // Free any remaining tokens
     if (shell->tokens)
     {
         free_tokens(shell->tokens);
         shell->tokens = NULL;
     }
-
-    // Free any remaining commands
     if (shell->commands)
     {
         free_commands(shell->commands);

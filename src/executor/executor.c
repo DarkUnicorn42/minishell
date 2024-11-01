@@ -26,8 +26,7 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history)
         {
             if (!execute_command(cmd, shell, history, &input_fd, &last_pid))
             {
-                //free_commands(commands);
-                shell->commands = NULL; // Set to NULL to prevent double free
+                shell->commands = NULL;
                 return set_exit_code(shell, 1);
             }
         }
@@ -35,7 +34,7 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history)
     }
     wait_for_children(shell, last_pid);
     free_commands(commands);
-    shell->commands = NULL; // Set to NULL after freeing
+    shell->commands = NULL;
     return 0;
 }
 

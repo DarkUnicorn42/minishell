@@ -79,12 +79,12 @@ int update_envp(char **envp, char *key, char *new_value)
             envp[i] = ft_strdup(new_value);
             if (!envp[i]) {
                 perror("malloc");
-                return 1;
+                return (1);
             }
-            return 0;
+            return (0);
         }
     }
-    return -1;
+    return (-1);
 }
 
 int	print_export_env(t_shell *shell)
