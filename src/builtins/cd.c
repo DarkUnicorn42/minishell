@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cd.c                                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mwojtcza <mwojtcza@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/10 18:29:58 by mwojtcza          #+#    #+#             */
+/*   Updated: 2024/11/10 18:29:58 by mwojtcza         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
@@ -43,7 +54,7 @@ int	update_pwd(t_shell *shell)
 
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
 	{
-		shell->envp = set_env_value("PWD", cwd, shell->envp);
+		shell->envp = set_env_val("PWD", cwd, shell->envp);
 		if (!shell->envp)
 			return (print_error("Error updating PWD\n", 1));
 	}

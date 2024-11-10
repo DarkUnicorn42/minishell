@@ -2,7 +2,7 @@
 NAME = minishell
 
 SOURCES =	src/minishell.c \
-			src/builtins/builtins.c src/builtins/export.c src/builtins/env.c src/builtins/cd.c \
+			src/builtins/builtins.c src/builtins/export.c src/builtins/export_helper.c src/builtins/env.c src/builtins/cd.c \
 			src/executor/executor.c src/executor/executor_builtins.c src/executor/executor_paths.c src/executor/executor_utils.c \
 			src/lexer/lexer.c src/lexer/lexer_utils.c src/lexer/lexer_tokens.c \
 			src/parser/parser.c src/parser/parser_memory.c src/parser/parser_redir.c \

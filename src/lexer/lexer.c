@@ -65,7 +65,7 @@ void	handle_operator(const char *input, size_t *i, t_token **tokens)
 	add_token(tokens, new_token);
 }
 
-int	handle_quotes(const char *input, size_t *i, char **word, int *quote_type)
+int	handle_quotes(const char *input, size_t *i, char **word, int *quote_t)
 {
 	char	*quoted_content;
 	char	*temp;
@@ -82,10 +82,10 @@ int	handle_quotes(const char *input, size_t *i, char **word, int *quote_type)
 		return (0);
 	}
 	*word = temp;
-	if (quote_char == '\'' && *quote_type != 2)
-		*quote_type = 1;
-	else if (quote_char == '"' && *quote_type != 1)
-		*quote_type = 2;
+	if (quote_char == '\'' && *quote_t != 2)
+		*quote_t = 1;
+	else if (quote_char == '"' && *quote_t != 1)
+		*quote_t = 2;
 	return (1);
 }
 

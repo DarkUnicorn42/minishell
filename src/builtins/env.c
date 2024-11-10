@@ -1,4 +1,14 @@
-
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   env.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mwojtcza <mwojtcza@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/10 18:29:55 by mwojtcza          #+#    #+#             */
+/*   Updated: 2024/11/10 18:29:55 by mwojtcza         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
@@ -47,7 +57,7 @@ char	*construct_env_entry(const char *key, const char *value)
 	return (entry);
 }
 
-char	**set_env_value(const char *key, const char *value, char **envp)
+char	**set_env_val(const char *key, const char *value, char **envp)
 {
 	int		key_len;
 	char	*new_entry;
@@ -63,7 +73,7 @@ char	**set_env_value(const char *key, const char *value, char **envp)
 			new_entry = construct_env_entry(key, value);
 			if (!new_entry)
 			{
-				ft_putstr_fd("Error: malloc failed in set_env_value\n", STDERR_FILENO);
+				ft_putstr_fd("Error: malloc failed set_env\n", STDERR_FILENO);
 				return (envp);
 			}
 			envp[i] = new_entry;
@@ -71,10 +81,10 @@ char	**set_env_value(const char *key, const char *value, char **envp)
 		}
 		i++;
 	}
-	return (add_env_entry(envp, key, value));
+	return (add_env_ent(envp, key, value));
 }
 
-char	**add_env_entry(char **envp, const char *key, const char *value)
+char	**add_env_ent(char **envp, const char *key, const char *value)
 {
 	char	**new_envp;
 	int		i;

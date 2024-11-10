@@ -6,7 +6,7 @@
 /*   By: mwojtcza <mwojtcza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/03 15:04:18 by mwojtcza          #+#    #+#             */
-/*   Updated: 2024/10/03 15:07:27 by mwojtcza         ###   ########.fr       */
+/*   Updated: 2024/11/10 18:31:26 by mwojtcza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ t_command	*start_new_command(t_command **commands)
 	return (new_command);
 }
 
-t_command	*create_command()
+t_command	*create_command(void)
 {
 	t_command	*cmd;
 

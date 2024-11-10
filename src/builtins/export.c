@@ -1,6 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   export.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mwojtcza <mwojtcza@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/10 18:29:52 by mwojtcza          #+#    #+#             */
+/*   Updated: 2024/11/10 18:29:52 by mwojtcza         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
 
 int	builtin_export(char **args, t_shell *shell)
 {
@@ -41,92 +51,60 @@ int	process_export_arg(char *arg, t_shell *shell)
 	return (1);
 }
 
-int expand_envp(t_shell *shell, char *new_var)
+int	expand_envp(t_shell *shell, char *new_var)
 {
-    int count = 0;
+	int	 	count;
+	int		i;
+	char	**new_envp;
 
-    while (shell->envp[count])
-        count++;
-
-    char **new_envp = malloc((count + 2) * sizeof(char *));
-    if (!new_envp) {
-        perror("malloc");
-        return 1;
-    }
-
-    for (int i = 0; i < count; i++)
-        new_envp[i] = shell->envp[i];
-
-    new_envp[count] = ft_strdup(new_var);
-    if (!new_envp[count]) {
-        perror("malloc");
-        free(new_envp);
-        return 1;
-    }
-    new_envp[count + 1] = NULL;
-
-    free(shell->envp);
-    shell->envp = new_envp;
-
-    return 0;
+	i = 0;
+	count = 0;
+	while (shell->envp[count])
+		count++;
+	new_envp = malloc((count + 2) * sizeof(char *));
+	if (!new_envp)
+	{
+		perror("malloc");
+		return (1);
+	}
+	while (i < count)
+	{
+		new_envp[i] = shell->envp[i];
+		i++;
+	}
+	new_envp[count] = ft_strdup(new_var);
+	if (!new_envp[count])
+	{
+		perror("malloc");
+		free(new_envp);
+		return (1);
+	}
+	new_envp[count + 1] = NULL;
+	free(shell->envp);
+	shell->envp = new_envp;
+	return (0);
 }
 
-int update_envp(char **envp, char *key, char *new_value)
-{
-    for (int i = 0; envp[i]; i++) {
-        if (ft_strncmp(envp[i], key, ft_strlen(key)) == 0 && envp[i][ft_strlen(key)] == '=') {
-            free(envp[i]);
-            envp[i] = ft_strdup(new_value);
-            if (!envp[i]) {
-                perror("malloc");
-                return (1);
-            }
-            return (0);
-        }
-    }
-    return (-1);
-}
-
-int	print_export_env(t_shell *shell)
+int	update_envp(char **envp, char *key, char *new_value)
 {
 	int	i;
 
 	i = 0;
-	while (shell->envp[i])
+	while (envp[i])
 	{
-		ft_putstr_fd("declare -x ", STDOUT_FILENO);
-		ft_putendl_fd(shell->envp[i], STDOUT_FILENO);
+		if (ft_strncmp(envp[i], key, ft_strlen(key)) == 0
+			&& envp[i][ft_strlen(key)] == '=')
+		{
+			free(envp[i]);
+			envp[i] = ft_strdup(new_value);
+			if (!envp[i])
+			{
+				perror("malloc");
+				return (1);
+			}
+			return (0);
+		}
 		i++;
 	}
-	return (0);
-}
-
-int	parse_export_arg(char *arg, char **key, char **value)
-{
-	char	*equal_sign;
-
-	equal_sign = ft_strchr(arg, '=');
-	if (equal_sign)
-	{
-		*key = ft_substr(arg, 0, equal_sign - arg);
-		*value = ft_strdup(equal_sign + 1);
-	}
-	else
-	{
-		*key = ft_strdup(arg);
-		*value = NULL;
-	}
-	if (!*key || (equal_sign && !*value))
-		return (-1);
-	if (!is_valid_identifier(*key))
-		return (0);
-	return (1);
-}
-
-int	print_export_id_error(char *identifier)
-{
-	ft_putstr_fd("export: `", STDERR_FILENO);
-	ft_putstr_fd(identifier, STDERR_FILENO);
-	ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
-	return (0);
+	return (-1);
 }

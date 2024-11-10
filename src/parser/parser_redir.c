@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_redir.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mwojtcza <mwojtcza@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/10 18:28:57 by mwojtcza          #+#    #+#             */
+/*   Updated: 2024/11/10 18:28:57 by mwojtcza         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
@@ -11,7 +22,7 @@ int	handle_redirection(t_token **tokens, t_command *current_command,
 	if (!(*tokens) || !is_word_token((*tokens)->type))
 	{
 		ft_putstr_fd("Error: Expected delimiter after redirection\n",
-					 STDERR_FILENO);
+			STDERR_FILENO);
 		free_commands(*commands);
 		return (0);
 	}
@@ -50,11 +61,11 @@ void	add_redirection(t_command *command, t_token_type type, char *file)
 int	is_redirection(t_token_type type)
 {
 	return (type == TOKEN_REDIRECT_IN || type == TOKEN_REDIRECT_OUT
-			|| type == TOKEN_HEREDOC || type == TOKEN_APPEND);
+		|| type == TOKEN_HEREDOC || type == TOKEN_APPEND);
 }
 
 int	is_word_token(t_token_type type)
 {
 	return (type == TOKEN_WORD || type == TOKEN_SINGLE_QUOTED
-			|| type == TOKEN_DOUBLE_QUOTED);
+		|| type == TOKEN_DOUBLE_QUOTED);
 }
