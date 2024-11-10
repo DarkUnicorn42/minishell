@@ -38,12 +38,6 @@ char	*expand_variable(const char *str, int *i, t_shell *shell)
 	return (expansion);
 }
 
-char	*expand_exit_code(t_shell *shell, int *i)
-{
-	*i += 2;
-	return (ft_itoa(shell->exit_code));
-}
-
 char	*expand_variables(const char *str, t_shell *shell)
 {
 	char	*result;
@@ -65,7 +59,7 @@ char	*expand_variables(const char *str, t_shell *shell)
 	return (result);
 }
 
-char	*append_expanded_token(char *result, const char *str, int *i, t_shell *shell)
+char	*append_expanded_token(char *r, const char *str, int *i, t_shell *shell)
 {
 	char	*expansion;
 	char	*temp;
@@ -76,11 +70,11 @@ char	*append_expanded_token(char *result, const char *str, int *i, t_shell *shel
 		expansion = ft_substr(str, (*i)++, 1);
 	if (!expansion)
 	{
-		free(result);
+		free(r);
 		return (NULL);
 	}
-	temp = ft_strjoin(result, expansion);
-	free(result);
+	temp = ft_strjoin(r, expansion);
+	free(r);
 	free(expansion);
 	if (!temp)
 	{
@@ -113,7 +107,7 @@ char	*expand_argument(char *arg, t_shell *shell)
 	expanded_arg = expand_variables(arg, shell);
 	if (!expanded_arg)
 	{
-		ft_putstr_fd("Error: malloc failed in expand_argument\n", STDERR_FILENO);
+		ft_putstr_fd("Error: malloc f expand_argument\n", STDERR_FILENO);
 		free(arg);
 		return (NULL);
 	}

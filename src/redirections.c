@@ -12,30 +12,30 @@
 
 #include "../include/minishell.h"
 
-int handle_redirections(t_command *command)
+int	handle_redirections(t_command *command)
 {
-    t_redirection *redir;
-    int fd;
+	t_redirection	*redir;
+	int				fd;
 
-    redir = command->redirections;
-    while (redir)
-    {
-        fd = open_file_for_redirection(redir);
-        if (fd == -1)
-        {
-            print_exit_error(redir->file, strerror(errno));
-            return (-1);
-        }
-        if (dup2(fd, get_dup_fd(redir->type)) == -1)
-        {
-            ft_putstr_fd("minishell: dup2 error\n", STDERR_FILENO);
-            close(fd);
-            return (-1);
-        }
-        close(fd);
-        redir = redir->next;
-    }
-    return (0);
+	redir = command->redirections;
+	while (redir)
+	{
+		fd = open_file_for_redirection(redir);
+		if (fd == -1)
+		{
+			print_exit_error(redir->file, strerror(errno));
+			return (-1);
+		}
+		if (dup2(fd, get_dup_fd(redir->type)) == -1)
+		{
+			ft_putstr_fd("minishell: dup2 error\n", STDERR_FILENO);
+			close(fd);
+			return (-1);
+		}
+		close(fd);
+		redir = redir->next;
+	}
+	return (0);
 }
 
 int	get_dup_fd(t_token_type type)
@@ -45,23 +45,23 @@ int	get_dup_fd(t_token_type type)
 	return (STDOUT_FILENO);
 }
 
-int open_file_for_redirection(t_redirection *redir)
+int	open_file_for_redirection(t_redirection *redir)
 {
-    int fd;
+	int	fd;
 
-    if (redir->type == TOKEN_REDIRECT_IN)
-        fd = open(redir->file, O_RDONLY);
-    else if (redir->type == TOKEN_REDIRECT_OUT)
-        fd = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    else if (redir->type == TOKEN_APPEND)
-        fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
-    else if (redir->type == TOKEN_HEREDOC)
-        fd = handle_heredoc(redir->file);
-    else
-        return (-1);
-    if (fd == -1)
-        return (-1);
-    return (fd);
+	if (redir->type == TOKEN_REDIRECT_IN)
+		fd = open(redir->file, O_RDONLY);
+	else if (redir->type == TOKEN_REDIRECT_OUT)
+		fd = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	else if (redir->type == TOKEN_APPEND)
+		fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	else if (redir->type == TOKEN_HEREDOC)
+		fd = handle_heredoc(redir->file);
+	else
+		return (-1);
+	if (fd == -1)
+		return (-1);
+	return (fd);
 }
 
 int	handle_heredoc(char *delimiter)
@@ -79,12 +79,12 @@ int	handle_heredoc(char *delimiter)
 		ft_putstr_fd("> ", STDOUT_FILENO);
 		line = get_next_line(STDIN_FILENO);
 		if (!line)
-			break;
+			break ;
 		if (ft_strncmp(line, delimiter, ft_strlen(delimiter)) == 0 &&
 			line[ft_strlen(delimiter)] == '\n')
 		{
 			free(line);
-			break;
+			break ;
 		}
 		ft_putstr_fd(line, pipe_fd[1]);
 		free(line);

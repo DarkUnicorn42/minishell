@@ -166,7 +166,7 @@ int				check_executable(char *full_path, char *cmd);
 char			*expand_variable(const char *str, int *i, t_shell *shell);
 char			*expand_exit_code(t_shell *shell, int *i);
 char			*expand_variables(const char *str, t_shell *shell);
-char			*append_expanded_token(char *result, const char *str,
+char			*append_expanded_token(char *r, const char *str,
 					int *i, t_shell *shell);
 char			*get_expansion(const char *str, int *i, t_shell *shell);
 char			*expand_argument(char *arg, t_shell *shell);
@@ -238,24 +238,3 @@ void			ignore_sigquit(void);
 void			setup_signals(void);
 
 #endif
-/*
-** minishell.c: Contains the main loop and initialization.
-**
-** lexer.c: Functions for tokenizing the input string.
-**
-** parser.c: Functions for parsing tokens into command structures.
-**
-** expander.c: Functions for expanding environment variables.
-**
-** executor.c: Functions for executing commands and handling built-ins.
-**
-** builtins.c: Implementations of built-in shell commands.
-**
-** redirections.c: Functions for handling input/output redirections.
-**
-** pipes.c: Functions for setting up and managing pipes between processes.
-**
-** memory.c: Memory allocation and deallocation functions.
-**
-** utils.c: Utility functions used across the program.
-*/

@@ -191,3 +191,9 @@ int	print_error(char *message, int exit_code)
 	ft_putstr_fd(message, STDERR_FILENO);
 	return (exit_code);
 }
+
+char	*expand_exit_code(t_shell *shell, int *i)
+{
+	*i += 2;
+	return (ft_itoa(shell->exit_code));
+}
