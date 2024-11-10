@@ -92,6 +92,11 @@ int				resize_history(t_history *history);
 // lexer.c
 t_token			*lexer(const char *input);
 void			handle_operator(const char *input, size_t *i, t_token **tokens);
+t_token_type	handle_pipe(const char *input, size_t *i);
+t_token_type	handle_less_than(const char *input, size_t *i);
+t_token_type	handle_greater_than(const char *input, size_t *i);
+t_token_type	identify_operator(const char *input, size_t *i);
+
 int				handle_word(const char *input, size_t *i, t_token **tokens);
 int				handle_quotes(const char *input, size_t *i,
 					char **word, int *quote_t);

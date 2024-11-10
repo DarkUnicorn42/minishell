@@ -12,14 +12,19 @@
 
 #include "../../include/minishell.h"
 
-t_token_type	identify_operator(const char *input, size_t *i)
+t_token_type	handle_pipe(const char *input, size_t *i)
 {
 	if (input[*i] == '|')
 	{
 		(*i)++;
 		return (TOKEN_PIPE);
 	}
-	else if (input[*i] == '<')
+	return (TOKEN_EOF);
+}
+
+t_token_type	handle_less_than(const char *input, size_t *i)
+{
+	if (input[*i] == '<')
 	{
 		(*i)++;
 		if (input[*i] == '<')
@@ -29,7 +34,12 @@ t_token_type	identify_operator(const char *input, size_t *i)
 		}
 		return (TOKEN_REDIRECT_IN);
 	}
-	else if (input[*i] == '>')
+	return (TOKEN_EOF);
+}
+
+t_token_type	handle_greater_than(const char *input, size_t *i)
+{
+	if (input[*i] == '>')
 	{
 		(*i)++;
 		if (input[*i] == '>')
@@ -39,6 +49,22 @@ t_token_type	identify_operator(const char *input, size_t *i)
 		}
 		return (TOKEN_REDIRECT_OUT);
 	}
+	return (TOKEN_EOF);
+}
+
+t_token_type	identify_operator(const char *input, size_t *i)
+{
+	t_token_type	token_type;
+
+	token_type = handle_pipe(input, i);
+	if (token_type != TOKEN_EOF)
+		return (token_type);
+	token_type = handle_less_than(input, i);
+	if (token_type != TOKEN_EOF)
+		return (token_type);
+	token_type = handle_greater_than(input, i);
+	if (token_type != TOKEN_EOF)
+		return (token_type);
 	return (TOKEN_EOF);
 }
 

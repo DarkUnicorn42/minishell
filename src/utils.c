@@ -33,10 +33,10 @@ void	free_tokens(t_token *tokens)
 		temp = tokens;
 		tokens = tokens->next;
 		if (temp->value)
-        {
-            free(temp->value);
-            temp->value = NULL;
-        }
+		{
+			free(temp->value);
+			temp->value = NULL;
+		}
 		free(temp);
 		temp = NULL;
 	}
@@ -79,44 +79,49 @@ int	copy_envp(char **envp, char **new_envp, int count)
 	return (1);
 }
 
-char *ft_strncat_char(char *str, char c) {
-    size_t len = ft_strlen(str);
-    char *new_str = malloc(len + 2);
-    if (!new_str) {
-        perror("malloc");
-        return NULL;
-    }
-    ft_strcpy(new_str, str);
-    new_str[len] = c;
-    new_str[len + 1] = '\0';
-    return new_str;
+char	*ft_strncat_char(char *str, char c)
+{
+	size_t	len;
+	char		*new_str;
+
+	len = ft_strlen(str);
+	new_str = malloc(len + 2);
+	if (!new_str)
+	{
+		perror("malloc");
+		return (NULL);
+	}
+	ft_strcpy(new_str, str);
+	new_str[len] = c;
+	new_str[len + 1] = '\0';
+	return (new_str);
 }
 
-char *join_and_free(char *str1, char *str2)
+char	*join_and_free(char *str1, char *str2)
 {
-    char *result;
+	char	*result;
 
-    result = ft_strjoin(str1, str2);
-    if (!result)
-    {
-        free(str1);
-        free(str2);
-        return NULL;
-    }
-    free(str1);
-    free(str2);
-    return result;
+	result = ft_strjoin(str1, str2);
+	if (!result)
+	{
+		free(str1);
+		free(str2);
+		return (NULL);
+	}
+	free(str1);
+	free(str2);
+	return (result);
 }
 
-void skip_whitespace(const char *input, size_t *i)
+void	skip_whitespace(const char *input, size_t *i)
 {
-    while (input[*i] == ' ' || input[*i] == '\t')
-        (*i)++;
+	while (input[*i] == ' ' || input[*i] == '\t')
+		(*i)++;
 }
 
-int is_operator_char(char c)
+int	is_operator_char(char c)
 {
-    return (c == '|' || c == '<' || c == '>' || c == ';');
+	return (c == '|' || c == '<' || c == '>' || c == ';');
 }
 
 int	set_exit_code(t_shell *shell, int code)

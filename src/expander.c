@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "../include/minishell.h"
 
 char	*expand_variable(const char *str, int *i, t_shell *shell)
