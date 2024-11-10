@@ -83,11 +83,18 @@ typedef struct s_shell
 void			print_welcome_message(void);
 int				init_shell(t_shell *shell, char **envp, t_history *history);
 void			process_input(char *input, t_shell *shell, t_history *history);
+void			clear_shell_state(t_shell *shell);
+void			free_current_dir(char **current_dir);
+void			free_envp(char ***envp);
 void			cleanup_shell(t_shell *shell, t_history *history);
+void			initialize_shell(t_shell *shell);
+void			shell_loop(t_shell *shell, t_history *history);
 
 // history.c
 int				add_history_entry(char *input, t_history *history);
 int				resize_history(t_history *history);
+int				add_input_to_history(char *input, t_history *history);
+void			free_history(t_history *history);
 
 // lexer.c
 t_token			*lexer(const char *input);

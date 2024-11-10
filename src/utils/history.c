@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
 int	add_history_entry(char *input, t_history *history)
 {
@@ -28,29 +27,61 @@ int	add_history_entry(char *input, t_history *history)
 	return (1);
 }
 
-int resize_history(t_history *history)
+int	resize_history(t_history *history)
 {
-    char    **new_commands;
-    int     j;
-    int     new_capacity;
+	char	**new_commands;
+	int		j;
+	int		new_capacity;
 
-    new_capacity = history->capacity * 2;
-    new_commands = malloc(sizeof(char *) * new_capacity);
-    if (!new_commands)
-        return (0);
-    j = 0;
-    while (j < history->count)
-    {
-        new_commands[j] = history->commands[j];
-        j++;
-    }
-    while (j < new_capacity)
-    {
-        new_commands[j] = NULL;
-        j++;
-    }
-    free(history->commands);
-    history->commands = new_commands;
-    history->capacity = new_capacity;
-    return (1);
+	new_capacity = history->capacity * 2;
+	new_commands = malloc(sizeof(char *) * new_capacity);
+	if (!new_commands)
+		return (0);
+	j = 0;
+	while (j < history->count)
+	{
+		new_commands[j] = history->commands[j];
+		j++;
+	}
+	while (j < new_capacity)
+	{
+		new_commands[j] = NULL;
+		j++;
+	}
+	free(history->commands);
+	history->commands = new_commands;
+	history->capacity = new_capacity;
+	return (1);
+}
+
+int	add_input_to_history(char *input, t_history *history)
+{
+	if (input && *input)
+	{
+		if (!add_history_entry(input, history))
+		{
+			ft_putstr_fd("Memory allocation failed for command history\n",
+				STDERR_FILENO);
+			free(input);
+			return (0);
+		}
+	}
+	return (1);
+}
+
+void	free_history(t_history *history)
+{
+	int	i;
+
+	if (history->commands)
+	{
+		i = 0;
+		while (i < history->count)
+		{
+			free(history->commands[i]);
+			i++;
+		}
+		free(history->commands);
+		history->commands = NULL;
+	}
 }
