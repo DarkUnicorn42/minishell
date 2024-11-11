@@ -12,30 +12,32 @@
 
 #include "../include/minishell.h"
 
-int	handle_redirections(t_command *command)
+int handle_redirections(t_command *command, t_shell *shell)
 {
-	t_redirection	*redir;
-	int				fd;
+    t_redirection *redir;
+    int fd;
 
-	redir = command->redirections;
-	while (redir)
-	{
-		fd = open_file_for_redirection(redir);
-		if (fd == -1)
-		{
-			print_exit_error(redir->file, strerror(errno));
-			return (-1);
-		}
-		if (dup2(fd, get_dup_fd(redir->type)) == -1)
-		{
-			ft_putstr_fd("minishell: dup2 error\n", STDERR_FILENO);
-			close(fd);
-			return (-1);
-		}
-		close(fd);
-		redir = redir->next;
-	}
-	return (0);
+    redir = command->redirections;
+    while (redir)
+    {
+        fd = open_file_for_redirection(redir);
+        if (fd == -1)
+        {
+            print_exit_error(redir->file, strerror(errno));
+            shell->exit_code = 1;
+            return (-1);
+        }
+        if (dup2(fd, get_dup_fd(redir->type)) == -1)
+        {
+            ft_putstr_fd("minishell: dup2 error\n", STDERR_FILENO);
+            close(fd);
+            shell->exit_code = 1;
+            return (-1);
+        }
+        close(fd);
+        redir = redir->next;
+    }
+    return (0);
 }
 
 int	get_dup_fd(t_token_type type)

@@ -75,6 +75,8 @@ typedef struct s_shell
 	int			exit_code;
 	char		**envp;
 	char		*current_dir;
+	pid_t		last_pid;
+	int			input_fd;
 	t_token		*tokens;
 	t_command	*commands;
 }	t_shell;
@@ -140,8 +142,7 @@ void			free_redirections(t_redirection *redir);
 // executor.c
 int				execute_commands(t_command *commands,
 					t_shell *shell, t_history *history);
-int				execute_command(t_command *cmd, t_shell *shell,
-					t_history *history, int *input_fd, pid_t *last_pid);
+int				execute_command(t_command *cmd, t_shell *shell, t_history *history);
 int				is_builtin_parent(char *cmd);
 int				is_builtin(char *cmd);
 int				execute_builtin(t_command *command,
@@ -150,15 +151,13 @@ int				run_builtin_command(t_command *command,
 					t_shell *shell, t_history *history);
 void			execute_external(t_command *command, t_shell *shell);
 char			*find_executable_path(char **paths, char *cmd);
-void			execute_command_full_path(char *full_path,
-					char **args, char **envp);
+void			execute_command_full_path(char *full_path, char **args, char **envp);
 char			*search_in_path(char *cmd, char **envp);
 int				check_file_access(char *full_path);
 char			*get_full_path(t_command *command, t_shell *shell);
-void			execute_parent(t_command *cmd, int *input_fd,
-					int pipe_fd[2], pid_t pid, pid_t *last_pid);
+void			execute_parent(t_command *cmd, int pipe_fd[2], pid_t pid, t_shell *shell);
 void			execute_child(t_command *cmd, t_shell *shell,
-					t_history *history, int input_fd, int pipe_fd[2]);
+					t_history *history, int pipe_fd[2]);
 char			*join_path_cmd(char *path, char *cmd);
 int				check_executable(char *full_path, char *cmd);
 
@@ -175,11 +174,11 @@ char			*expand_argument(char *arg, t_shell *shell);
 int				create_pipe(int pipe_fd[2]);
 pid_t			fork_process(void);
 int				parent_process(int input_fd, int pipe_fd[2], t_command *cmd);
-void			wait_for_children(t_shell *shell, pid_t last_pid);
+void			wait_for_children(t_shell *shell);
 void			setup_child_io(t_command *cmd, int input_fd, int pipe_fd[2]);
 
 // redirections.c
-int				handle_redirections(t_command *command);
+int				handle_redirections(t_command *command, t_shell *shell);
 int				open_file_for_redirection(t_redirection *redir);
 int				get_dup_fd(t_token_type type);
 int				handle_heredoc(char *delimiter);
