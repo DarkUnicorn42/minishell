@@ -16,7 +16,6 @@ void	handle_sigquit(int sig)
 {
 	if (sig == SIGQUIT)
 	{
-
 	}
 }
 
@@ -34,7 +33,7 @@ void	ignore_sigquit(void)
 
 	sigemptyset(&sa_quit.sa_mask);
 	sa_quit.sa_handler = SIG_IGN;
-	sa_quit.sa_flags = 0;	
+	sa_quit.sa_flags = 0;
 	if (sigaction(SIGQUIT, &sa_quit, NULL) == -1)
 	{
 		perror("sigaction SIGQUIT");
@@ -48,7 +47,7 @@ void	setup_signals(void)
 
 	sigemptyset(&sa_int.sa_mask);
 	sa_int.sa_handler = handle_sigint;
-	sa_int.sa_flags = SA_RESTART;	
+	sa_int.sa_flags = SA_RESTART;
 	if (sigaction(SIGINT, &sa_int, NULL) == -1)
 	{
 		perror("sigaction SIGINT");

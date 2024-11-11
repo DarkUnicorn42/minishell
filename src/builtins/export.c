@@ -35,7 +35,9 @@ int	process_export_arg(char *arg, t_shell *shell)
 	char	*key;
 	char	*value;
 	int		result;
+	int		count;
 
+	count = 0;
 	result = parse_export_arg(arg, &key, &value);
 	if (result == -1)
 		return (print_error("malloc error\n", 1));
@@ -43,7 +45,7 @@ int	process_export_arg(char *arg, t_shell *shell)
 		return (print_export_id_error(arg));
 	if (update_envp(shell->envp, key, value) == -1)
 	{
-		if (expand_envp(shell, arg))
+		if (expand_envp(shell, arg, count))
 			return (print_error("malloc error\n", 1));
 	}
 	free(key);
@@ -51,22 +53,17 @@ int	process_export_arg(char *arg, t_shell *shell)
 	return (1);
 }
 
-int	expand_envp(t_shell *shell, char *new_var)
+int	expand_envp(t_shell *shell, char *new_var, int count)
 {
-	int		count;
 	int		i;
 	char	**new_envp;
 
 	i = 0;
-	count = 0;
 	while (shell->envp[count])
 		count++;
 	new_envp = malloc((count + 2) * sizeof(char *));
 	if (!new_envp)
-	{
-		perror("malloc");
 		return (1);
-	}
 	while (i < count)
 	{
 		new_envp[i] = shell->envp[i];
@@ -75,7 +72,6 @@ int	expand_envp(t_shell *shell, char *new_var)
 	new_envp[count] = ft_strdup(new_var);
 	if (!new_envp[count])
 	{
-		perror("malloc");
 		free(new_envp);
 		return (1);
 	}

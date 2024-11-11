@@ -142,7 +142,8 @@ void			free_redirections(t_redirection *redir);
 // executor.c
 int				execute_commands(t_command *commands,
 					t_shell *shell, t_history *history);
-int				execute_command(t_command *cmd, t_shell *shell, t_history *history);
+int				execute_command(t_command *cmd, t_shell *shell,
+					t_history *history);
 int				is_builtin_parent(char *cmd);
 int				is_builtin(char *cmd);
 int				execute_builtin(t_command *command,
@@ -151,11 +152,13 @@ int				run_builtin_command(t_command *command,
 					t_shell *shell, t_history *history);
 void			execute_external(t_command *command, t_shell *shell);
 char			*find_executable_path(char **paths, char *cmd);
-void			execute_command_full_path(char *full_path, char **args, char **envp);
+void			execute_command_full_path(char *full_path, char **args,
+					char **envp);
 char			*search_in_path(char *cmd, char **envp);
 int				check_file_access(char *full_path);
 char			*get_full_path(t_command *command, t_shell *shell);
-void			execute_parent(t_command *cmd, int pipe_fd[2], pid_t pid, t_shell *shell);
+void			execute_parent(t_command *cmd, int pipe_fd[2], pid_t pid,
+					t_shell *shell);
 void			execute_child(t_command *cmd, t_shell *shell,
 					t_history *history, int pipe_fd[2]);
 char			*join_path_cmd(char *path, char *cmd);
@@ -208,7 +211,7 @@ char			**realloc_envp(char **envp, int new_size);
 // export.c
 int				builtin_export(char **args, t_shell *shell);
 int				process_export_arg(char *arg, t_shell *shell);
-int				expand_envp(t_shell *shell, char *new_var);
+int				expand_envp(t_shell *shell, char *new_var, int count);
 int				update_envp(char **envp, char *key, char *new_value);
 int				print_export_env(t_shell *shell);
 int				parse_export_arg(char *arg, char **key, char **value);

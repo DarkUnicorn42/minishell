@@ -44,12 +44,13 @@ int	parent_process(int input_fd, int pipe_fd[2], t_command *cmd)
 	return (STDIN_FILENO);
 }
 
-void wait_for_children(t_shell *shell)
+void	wait_for_children(t_shell *shell)
 {
 	int		status;
 	pid_t	pid;
 
-	while ((pid = wait(&status)) > 0)
+	pid = wait(&status);
+	while (pid > 0)
 	{
 		if (pid == shell->last_pid)
 		{
@@ -60,6 +61,7 @@ void wait_for_children(t_shell *shell)
 			else
 				shell->exit_code = 1;
 		}
+		pid = wait(&status);
 	}
 }
 

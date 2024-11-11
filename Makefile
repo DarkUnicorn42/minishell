@@ -6,7 +6,7 @@ SOURCES =	src/minishell.c \
 			src/executor/executor.c src/executor/executor_builtins.c src/executor/executor_paths.c src/executor/executor_utils.c \
 			src/lexer/lexer.c src/lexer/lexer_utils.c src/lexer/lexer_tokens.c \
 			src/parser/parser.c src/parser/parser_memory.c src/parser/parser_redir.c \
-			src/utils/utils.c src/utils/history.c src/utils/utils_print.c src/utils/utils_is.c\
+			src/utils/utils.c src/utils/history.c src/utils/utils_print.c src/utils/utils_is.c src/utils/utils_mem.c \
 			src/signals.c \
 			src/expander.c src/pipes.c \
 			src/redirections.c \

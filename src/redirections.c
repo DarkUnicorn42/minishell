@@ -12,10 +12,10 @@
 
 #include "../include/minishell.h"
 
-int handle_redirections(t_command *command, t_shell *shell)
+int	handle_redirections(t_command *command, t_shell *shell)
 {
 	t_redirection	*redir;
-	int		fd;
+	int				fd;
 
 	redir = command->redirections;
 	while (redir)
@@ -82,8 +82,8 @@ int	handle_heredoc(char *delimiter)
 		line = get_next_line(STDIN_FILENO);
 		if (!line)
 			break ;
-		if (ft_strncmp(line, delimiter, ft_strlen(delimiter)) == 0 &&
-			line[ft_strlen(delimiter)] == '\n')
+		if (ft_strncmp(line, delimiter, ft_strlen(delimiter)) == 0
+			&& line[ft_strlen(delimiter)] == '\n')
 		{
 			free(line);
 			break ;
