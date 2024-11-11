@@ -12,9 +12,10 @@
 
 #include "../../include/minishell.h"
 
-int execute_commands(t_command *commands, t_shell *shell, t_history *history)
+int	execute_commands(t_command *commands, t_shell *shell, t_history *history)
 {
-	t_command *cmd;
+	t_command	*cmd;
+
 	cmd = commands;
 	shell->input_fd = STDIN_FILENO;
 	shell->last_pid = -1;
@@ -38,7 +39,7 @@ int execute_commands(t_command *commands, t_shell *shell, t_history *history)
 	return (0);
 }
 
-int execute_command(t_command *cmd, t_shell *shell, t_history *history)
+int	execute_command(t_command *cmd, t_shell *shell, t_history *history)
 {
 	int		pipe_fd[2];
 	pid_t	pid;
@@ -55,7 +56,8 @@ int execute_command(t_command *cmd, t_shell *shell, t_history *history)
 	return (1);
 }
 
-void execute_child(t_command *cmd, t_shell *shell, t_history *history, int pipe_fd[2])
+void	execute_child(t_command *cmd, t_shell *shell, t_history *history
+			, int pipe_fd[2])
 {
 	setup_child_io(cmd, shell->input_fd, pipe_fd);
 	if (handle_redirections(cmd, shell) == -1)
@@ -70,7 +72,8 @@ void execute_child(t_command *cmd, t_shell *shell, t_history *history, int pipe_
 	exit(shell->exit_code);
 }
 
-void execute_parent(t_command *cmd, int pipe_fd[2], pid_t pid, t_shell *shell)
+void	execute_parent(t_command *cmd, int pipe_fd[2], pid_t pid
+			, t_shell *shell)
 {
 	if (shell->input_fd != STDIN_FILENO)
 		close(shell->input_fd);
@@ -82,7 +85,7 @@ void execute_parent(t_command *cmd, int pipe_fd[2], pid_t pid, t_shell *shell)
 	shell->last_pid = pid;
 }
 
-void execute_external(t_command *command, t_shell *shell)
+void	execute_external(t_command *command, t_shell *shell)
 {
 	char	*full_path;
 

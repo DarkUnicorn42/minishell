@@ -46,21 +46,21 @@ int	parent_process(int input_fd, int pipe_fd[2], t_command *cmd)
 
 void wait_for_children(t_shell *shell)
 {
-    int status;
-    pid_t pid;
+	int		status;
+	pid_t	pid;
 
-    while ((pid = wait(&status)) > 0)
-    {
-        if (pid == shell->last_pid)
-        {
-            if (WIFEXITED(status))
-                shell->exit_code = WEXITSTATUS(status);
-            else if (WIFSIGNALED(status))
-                shell->exit_code = 128 + WTERMSIG(status);
-            else
-                shell->exit_code = 1;
-        }
-    }
+	while ((pid = wait(&status)) > 0)
+	{
+		if (pid == shell->last_pid)
+		{
+			if (WIFEXITED(status))
+				shell->exit_code = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+				shell->exit_code = 128 + WTERMSIG(status);
+			else
+				shell->exit_code = 1;
+		}
+	}
 }
 
 void	setup_child_io(t_command *cmd, int input_fd, int pipe_fd[2])

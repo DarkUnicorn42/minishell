@@ -53,7 +53,7 @@ int	process_export_arg(char *arg, t_shell *shell)
 
 int	expand_envp(t_shell *shell, char *new_var)
 {
-	int	 	count;
+	int		count;
 	int		i;
 	char	**new_envp;
 
@@ -83,6 +83,30 @@ int	expand_envp(t_shell *shell, char *new_var)
 	free(shell->envp);
 	shell->envp = new_envp;
 	return (0);
+}
+
+char	**duplicate_envp_with_space(char **envp)
+{
+	int		count;
+	int		i;
+	char	**new_envp;
+
+	count = 0;
+	while (envp[count])
+		count++;
+	new_envp = malloc((count + 2) * sizeof(char *));
+	if (!new_envp)
+	{
+		perror("malloc");
+		return (NULL);
+	}
+	i = 0;
+	while (i < count)
+	{
+		new_envp[i] = envp[i];
+		i++;
+	}
+	return (new_envp);
 }
 
 int	update_envp(char **envp, char *key, char *new_value)

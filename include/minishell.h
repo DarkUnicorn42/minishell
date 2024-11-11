@@ -213,6 +213,7 @@ int				update_envp(char **envp, char *key, char *new_value);
 int				print_export_env(t_shell *shell);
 int				parse_export_arg(char *arg, char **key, char **value);
 int				print_export_id_error(char *identifier);
+char			**duplicate_envp_with_space(char **envp);
 
 // utils.c
 void			print_tokens(t_token *tokens);
