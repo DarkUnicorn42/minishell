@@ -24,7 +24,12 @@ int	builtin_cd(char **args, t_shell *shell)
 	if (!path)
 		return (1);
 	if (chdir(path) == -1)
-		return (print_error(" No such file or directory\n", 1));
+	{
+		print_exit_error(path, strerror(errno));
+		free(path);
+		return (1);
+	}
+	free(path);
 	if (!update_pwd(shell))
 		return (1);
 	return (0);
@@ -42,10 +47,35 @@ char	*get_cd_path(char **args, t_shell *shell)
 			ft_putstr_fd("cd: HOME not set\n", STDERR_FILENO);
 			return (NULL);
 		}
+		return (ft_strdup(path));
 	}
 	else
-		path = args[1];
-	return (path);
+	{
+		path = expand_tilde(args[1], shell);
+		return (path);
+	}
+}
+
+char	*expand_tilde(char *path, t_shell *shell)
+{
+	char	*home;
+	char	*expanded_path;
+
+	if (path[0] != '~')
+		return (ft_strdup(path));
+	home = get_env_value("HOME", shell->envp);
+	if (!home)
+	{
+		ft_putstr_fd("cd: HOME not set\n", STDERR_FILENO);
+		return (NULL);
+	}
+	expanded_path = ft_strjoin(home, path + 1);
+	if (!expanded_path)
+	{
+		ft_putstr_fd("cd: Memory allocation failed\n", STDERR_FILENO);
+		return (NULL);
+	}
+	return (expanded_path);
 }
 
 int	update_pwd(t_shell *shell)

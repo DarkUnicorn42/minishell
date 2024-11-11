@@ -198,6 +198,7 @@ int				builtin_cd(char **args, t_shell *shell);
 char			*get_cd_path(char **args, t_shell *shell);
 int				update_pwd(t_shell *shell);
 int				count_args(char **args);
+char			*expand_tilde(char *path, t_shell *shell);
 
 // env.c
 int				builtin_env(t_shell *shell);
